@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────
 #  run.sh  —  Start the Bot Hosting Panel
-# ─────────────────────────────────────────────
+#  Repo  : https://github.com/lonefaisal7/botpanel
+# ─────────────────────────────────────────────────────────────────
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
@@ -14,4 +15,5 @@ fi
 mkdir -p bots uploads
 
 echo "🚀  Starting Bot Hosting Panel on http://0.0.0.0:8000"
+echo "📖  API Docs: http://0.0.0.0:8000/docs"
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload

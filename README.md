@@ -1,7 +1,9 @@
 # 🤖 Bot Hosting Panel
 
-A **self-hosted Telegram bot hosting panel** built with FastAPI + Docker.
-Deploy, manage, and monitor your Telegram bots from a clean web UI — running on your own Ubuntu VPS.
+A **self-hosted Telegram bot hosting panel** built with FastAPI + Docker.  
+Deploy, manage, and monitor your Telegram bots from a clean web dashboard — running on your own Ubuntu VPS.
+
+> **Repository:** [https://github.com/lonefaisal7/botpanel](https://github.com/lonefaisal7/botpanel)
 
 ---
 
@@ -11,32 +13,32 @@ Deploy, manage, and monitor your Telegram bots from a clean web UI — running o
 |---|---|
 | 📦 Upload bots | `.py` single file or `.zip` archive |
 | 🐳 Docker isolation | Every bot runs in its own `python:3.11-slim` container |
-| ⚙️ Auto Dockerfile | Generated per-bot with dependency install |
+| ⚙️ Auto Dockerfile | Generated per-bot with auto dependency install |
 | ▶️ Start / ⏸ Stop / 🔄 Restart | Full container lifecycle control |
-| 🗑 Delete | Removes container, image, and files |
+| 🗑 Delete | Removes container, image, and all files |
 | 📄 Live Logs | Tail Docker logs in a modal popup |
 | 🔁 Auto-refresh | Dashboard polls every 8 seconds |
-| 💾 SQLite DB | Lightweight — no external DB needed |
+| 💾 SQLite DB | No external database needed |
 
 ---
 
 ## 🚀 One-Command Install
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/YOUR_USERNAME/bot-hosting-panel/main/setup.sh | sudo bash
+curl -sSL https://raw.githubusercontent.com/lonefaisal7/botpanel/main/setup.sh | sudo bash
 ```
 
-After install, open **http://YOUR_VPS_IP:8000** in your browser.
+After install, open **http://YOUR\_VPS\_IP:8000** in your browser.
 
-> **Prerequisites:** A fresh Ubuntu 20.04/22.04/24.04 VPS with port **8000** open.
+> **Prerequisites:** Fresh Ubuntu 20.04/22.04/24.04 VPS with port **8000** open.
 
 ---
 
 ## 🛠 Manual Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/bot-hosting-panel
-cd bot-hosting-panel
+git clone https://github.com/lonefaisal7/botpanel
+cd botpanel
 python3.11 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 chmod +x run.sh
@@ -48,7 +50,7 @@ chmod +x run.sh
 ## 📁 Project Structure
 
 ```
-bot-hosting-panel/
+botpanel/
 ├── app/
 │   ├── main.py               ← FastAPI app entry point
 │   ├── models/bot.py         ← SQLAlchemy models + SQLite engine
@@ -62,7 +64,7 @@ bot-hosting-panel/
 ├── uploads/                  ← Temporary upload staging
 ├── requirements.txt
 ├── setup.sh                  ← One-command VPS installer
-├── run.sh                    ← Start the server
+├── run.sh                    ← Start the server manually
 └── README.md
 ```
 
@@ -72,7 +74,7 @@ bot-hosting-panel/
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/bots/upload` | Upload bot (`multipart/form-data`: `file`, `bot_name`) |
+| `POST` | `/api/bots/upload` | Upload bot (`file` + `bot_name`) |
 | `GET`  | `/api/bots/list` | List all bots with live status |
 | `POST` | `/api/bots/{id}/start` | Start bot container |
 | `POST` | `/api/bots/{id}/stop` | Stop bot container |
@@ -81,27 +83,26 @@ bot-hosting-panel/
 | `GET`  | `/api/bots/{id}/logs` | Get last 150 lines of Docker logs |
 | `GET`  | `/health` | Health check |
 
-Interactive docs: **http://YOUR_VPS_IP:8000/docs**
+Interactive Swagger docs: **http://YOUR\_VPS\_IP:8000/docs**
 
 ---
 
 ## 📤 How to Upload a Bot
 
-### Single file
-Upload `bot.py` directly.
+### Single `.py` file
+Upload `bot.py` directly — must contain your bot's main logic.
 
-### Zip archive
-Structure your zip as:
+### `.zip` archive
 ```
 mybot.zip
-└── bot.py            ← or main.py
-└── requirements.txt  ← optional
+├── bot.py            ← entry point (or main.py)
+├── requirements.txt  ← optional, auto-installed
 └── config.py         ← any helper files
 ```
 
 ---
 
-## 🐳 Auto-generated Dockerfile (per bot)
+## 🐳 Auto-Generated Dockerfile
 
 ```dockerfile
 FROM python:3.11-slim
@@ -112,34 +113,26 @@ RUN pip install --no-cache-dir -r requirements.txt
 CMD ["python", "-u", "bot.py"]
 ```
 
-Containers run with `--restart unless-stopped`.
+All containers run with `--restart unless-stopped`.
 
 ---
 
 ## 🔒 Security
 
-- Only `.py` and `.zip` files accepted
-- 50 MB max upload size
-- Zip-slip protection (path traversal check)
-- All bot code runs **exclusively inside Docker containers**
-- File paths sanitized before use
+- Only `.py` and `.zip` files accepted; 50 MB max upload
+- Zip-slip / path traversal protection
+- Bot code runs **exclusively inside Docker containers**
+- File paths sanitized via `os.path.realpath`
 
 ---
 
-## 🧩 Manage as a Service
+## 🧩 Manage the Panel Service
 
 ```bash
-# Check status
-systemctl status botpanel
-
-# View logs
-journalctl -u botpanel -f
-
-# Restart panel
-systemctl restart botpanel
-
-# Stop panel
-systemctl stop botpanel
+systemctl status botpanel       # Check status
+journalctl -u botpanel -f       # Live logs
+systemctl restart botpanel      # Restart
+systemctl stop botpanel         # Stop
 ```
 
 ---
@@ -153,14 +146,9 @@ systemctl stop botpanel
 
 ---
 
-## 📸 Screenshots
+## 👤 Author
 
-> Dashboard automatically refreshes every 8 seconds.
-
-```
-http://YOUR_VPS_IP:8000   ←  Web Dashboard
-http://YOUR_VPS_IP:8000/docs  ←  API Docs (Swagger UI)
-```
+**lonefaisal7** — [https://github.com/lonefaisal7/botpanel](https://github.com/lonefaisal7/botpanel)
 
 ---
 
