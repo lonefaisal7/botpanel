@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bot Hosting Panel</title>
+  <style>
+    :root {
+      --bg:      #0d1117;
+      --surface: #161b22;
+      --border:  #30363d;
+      --accent:  #238636;
+      --accent2: #1f6feb;
+      --danger:  #da3633;
+      --warn:    #d29922;
+      --text:    #e6edf3;
+      --muted:   #8b949e;
+      --radius:  8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+    /* ── NAV ─────────────────────────────────────────────── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    nav .logo { font-size: 1.35rem; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+    nav .logo span { color: #58a6ff; }
+    nav .tagline { color: var(--muted); font-size: 0.82rem; margin-left: auto; }
+
+    /* ── MAIN ────────────────────────────────────────────── */
+    main { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
+
+    /* ── UPLOAD CARD ─────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      margin-bottom: 28px;
+    }
+    .card h2 { font-size: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 18px; }
+
+    .upload-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 200px; }
+    .field label { font-size: .85rem; color: var(--muted); }
+    .field input[type="text"], .field input[type="file"] {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 9px 13px;
+      font-size: .92rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .field input:focus { border-color: #58a6ff; }
+    .field input[type="file"] { cursor: pointer; }
+
+    /* ── BUTTONS ─────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .18s, transform .1s;
+      white-space: nowrap;
+    }
+    .btn:hover  { opacity: .85; }
+    .btn:active { transform: scale(.97); }
+    .btn-primary  { background: var(--accent);  color: #fff; }
+    .btn-blue     { background: var(--accent2); color: #fff; }
+    .btn-warn     { background: var(--warn);    color: #000; }
+    .btn-danger   { background: var(--danger);  color: #fff; }
+    .btn-ghost    { background: #21262d;        color: var(--text); border: 1px solid var(--border); }
+    .btn-sm       { padding: 5px 11px; font-size: .78rem; }
+
+    /* ── PROGRESS ────────────────────────────────────────── */
+    .progress-wrap { display: none; align-items: center; gap: 12px; margin-top: 14px; }
+    .progress-wrap.show { display: flex; }
+    .progress-bar-bg {
+      flex: 1; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; width: 0%; background: #58a6ff;
+      border-radius: 99px; transition: width .3s;
+      animation: pulse-bar 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse-bar { 0%,100%{opacity:1} 50%{opacity:.5} }
+    .progress-label { font-size:.8rem; color: var(--muted); }
+
+    /* ── TOAST ───────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1c2128; border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 20px;
+      font-size: .9rem;
+      transform: translateY(80px); opacity: 0;
+      transition: all .3s;
+      z-index: 9999;
+      max-width: 340px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-left: 4px solid var(--accent); }
+    #toast.error   { border-left: 4px solid var(--danger); }
+    #toast.info    { border-left: 4px solid var(--accent2); }
+
+    /* ── TABLE ───────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    thead tr { border-bottom: 2px solid var(--border); }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    tbody tr:hover { background: #1c2128; }
+    th { padding: 11px 14px; text-align: left; color: var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.5px; }
+    td { padding: 13px 14px; vertical-align: middle; }
+
+    .actions { display: flex; gap: 7px; flex-wrap: wrap; }
+
+    /* ── STATUS BADGE ────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .badge-running { background: #1a4731; color: #3fb950; }
+    .badge-stopped { background: #2a1f1f; color: #f85149; }
+    .badge-error   { background: #2d1f1f; color: var(--warn); }
+    .badge-building{ background: #1c2948; color: #58a6ff; }
+
+    /* ── EMPTY STATE ─────────────────────────────────────── */
+    .empty-state {
+      text-align: center; padding: 48px 20px; color: var(--muted);
+    }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .empty-state p { font-size: .95rem; }
+
+    /* ── MODAL ───────────────────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.72);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: min(820px, 95vw);
+      max-height: 86vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-header h3 { font-size: 1rem; }
+    .modal-close {
+      background: none; border: none; color: var(--muted);
+      font-size: 1.4rem; cursor: pointer; line-height: 1;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { padding: 20px 22px; overflow-y: auto; flex: 1; }
+    pre#log-output {
+      background: #010409;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: .8rem;
+      color: #7ee787;
+      white-space: pre-wrap;
+      word-break: break-all;
+      min-height: 200px;
+      max-height: 55vh;
+      overflow-y: auto;
+    }
+    .modal-footer {
+      padding: 14px 22px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    /* ── HEADER STATS ─────────────────────────────────────── */
+    .stats-bar {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .stat-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 18px;
+      font-size: .85rem;
+    }
+    .stat-pill span { color: var(--muted); }
+    .stat-pill strong { color: var(--text); margin-left: 6px; }
+
+    @media (max-width: 600px) {
+      .upload-form { flex-direction: column; }
+      .actions { flex-direction: column; }
+      td, th { padding: 10px 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">🤖 <span>Bot</span>Panel</div>
+  <div class="tagline">Self-Hosted Telegram Bot Manager</div>
+</nav>
+
+<main>
+  <!-- Stats bar -->
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-pill"><span>Total Bots:</span><strong id="stat-total">—</strong></div>
+    <div class="stat-pill"><span>Running:</span><strong id="stat-running" style="color:#3fb950">—</strong></div>
+    <div class="stat-pill"><span>Stopped:</span><strong id="stat-stopped" style="color:#f85149">—</strong></div>
+    <div class="stat-pill"><span>Server:</span><strong style="color:#58a6ff">Online ✓</strong></div>
+  </div>
+
+  <!-- Upload card -->
+  <div class="card">
+    <h2>➕ Deploy New Bot</h2>
+    <form class="upload-form" id="upload-form" enctype="multipart/form-data">
+      <div class="field">
+        <label for="bot-name">Bot Name</label>
+        <input type="text" id="bot-name" name="bot_name" placeholder="my_telegram_bot" required maxlength="60"/>
+      </div>
+      <div class="field">
+        <label for="bot-file">Bot File (.py or .zip)</label>
+        <input type="file" id="bot-file" name="file" accept=".py,.zip" required/>
+      </div>
+      <button type="submit" class="btn btn-primary" id="upload-btn">
+        ⬆ Upload &amp; Deploy
+      </button>
+    </form>
+    <div class="progress-wrap" id="progress-wrap">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+      <div class="progress-label" id="progress-label">Building image…</div>
+    </div>
+  </div>
+
+  <!-- Bot list card -->
+  <div class="card">
+    <h2>📋 Deployed Bots</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Entry File</th>
+            <th>Deployed At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="bot-table-body">
+          <tr><td colspan="5"><div class="empty-state"><div class="icon">🤖</div><p>Loading bots…</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Logs modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">📄 Logs</h3>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <pre id="log-output">Loading…</pre>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" id="refresh-logs-btn">🔄 Refresh</button>
+      <button class="btn btn-ghost btn-sm" id="modal-close-btn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+  const API = '/api/bots';
+  let currentLogBotId = null;
+  let pollInterval = null;
+
+  // ── TOAST ──────────────────────────────────────────────────────────────────
+  function toast(msg, type = 'info', duration = 3500) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `show ${type}`;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), duration);
+  }
+
+  // ── FETCH WRAPPER ──────────────────────────────────────────────────────────
+  async function api(path, opts = {}) {
+    const res = await fetch(API + path, opts);
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.detail || `HTTP ${res.status}`);
+    return json;
+  }
+
+  // ── STATUS BADGE ───────────────────────────────────────────────────────────
+  function badge(status) {
+    const map = {
+      running: 'badge-running',
+      stopped: 'badge-stopped',
+      exited:  'badge-stopped',
+      error:   'badge-error',
+      building:'badge-building',
+      not_found:'badge-stopped',
+    };
+    const cls = map[status] || 'badge-stopped';
+    return `<span class="badge ${cls}">${status}</span>`;
+  }
+
+  // ── LOAD BOTS ──────────────────────────────────────────────────────────────
+  async function loadBots() {
+    let bots;
+    try { bots = await api('/list'); }
+    catch(e) { return; }
+
+    const body = document.getElementById('bot-table-body');
+    document.getElementById('stat-total').textContent   = bots.length;
+    document.getElementById('stat-running').textContent = bots.filter(b => b.status === 'running').length;
+    document.getElementById('stat-stopped').textContent = bots.filter(b => b.status !== 'running').length;
+
+    if (!bots.length) {
+      body.innerHTML = `<tr><td colspan="5"><div class="empty-state">
+        <div class="icon">🤖</div>
+        <p>No bots deployed yet. Upload your first bot above!</p>
+      </div></td></tr>`;
+      return;
+    }
+
+    body.innerHTML = bots.map(b => `
+      <tr id="row-${b.id}">
+        <td><strong>${escHtml(b.name)}</strong></td>
+        <td>${badge(b.status)}</td>
+        <td><code style="font-size:.8rem;color:#79c0ff">${escHtml(b.entry_file)}</code></td>
+        <td style="color:var(--muted);font-size:.82rem">${fmtDate(b.created_at)}</td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-primary btn-sm"  onclick="botAction('${b.id}','start')">▶ Start</button>
+            <button class="btn btn-warn    btn-sm"  onclick="botAction('${b.id}','stop')">⏸ Stop</button>
+            <button class="btn btn-blue    btn-sm"  onclick="botAction('${b.id}','restart')">🔄 Restart</button>
+            <button class="btn btn-ghost   btn-sm"  onclick="openLogs('${b.id}','${escHtml(b.name)}')">📄 Logs</button>
+            <button class="btn btn-danger  btn-sm"  onclick="confirmDelete('${b.id}','${escHtml(b.name)}')">🗑 Delete</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  // ── BOT ACTION ─────────────────────────────────────────────────────────────
+  async function botAction(id, action) {
+    try {
+      const res = await api(`/${id}/${action}`, { method: 'POST' });
+      toast(`✅ Bot ${action}ed successfully.`, 'success');
+      await loadBots();
+    } catch(e) {
+      toast(`❌ ${e.message}`, 'error', 5000);
+    }
+  }
+
+  // ── DELETE CONFIRM ─────────────────────────────────────────────────────────
+  async function confirmDelete(id, name) {
+    if (!confirm(`Delete bot "${name}"?\nThis will stop the container and remove all files.`)) return;
+    try {
+      await api(`/${id}`, { method: 'DELETE' });
+      toast(`🗑 Bot "${name}" deleted.`, 'info');
+      await loadBots();
+    } catch(e) {
+      toast(`❌ ${e.message}`, 'error', 5000);
+    }
+  }
+
+  // ── LOGS MODAL ─────────────────────────────────────────────────────────────
+  async function openLogs(id, name) {
+    currentLogBotId = id;
+    document.getElementById('modal-title').textContent = `📄 Logs — ${name}`;
+    document.getElementById('modal-overlay').classList.add('open');
+    await fetchLogs();
+  }
+
+  async function fetchLogs() {
+    if (!currentLogBotId) return;
+    const pre = document.getElementById('log-output');
+    try {
+      const data = await api(`/${currentLogBotId}/logs`);
+      pre.textContent = data.logs || '(no output yet)';
+      pre.scrollTop = pre.scrollHeight;
+    } catch(e) {
+      pre.textContent = `Error: ${e.message}`;
+    }
+  }
+
+  document.getElementById('refresh-logs-btn').onclick = fetchLogs;
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('modal-close-btn').onclick = closeModal;
+  document.getElementById('modal-overlay').onclick = e => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  };
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    currentLogBotId = null;
+  }
+
+  // ── UPLOAD ─────────────────────────────────────────────────────────────────
+  document.getElementById('upload-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const fd      = new FormData(e.target);
+    const btn     = document.getElementById('upload-btn');
+    const pw      = document.getElementById('progress-wrap');
+    const pf      = document.getElementById('progress-fill');
+    const pl      = document.getElementById('progress-label');
+
+    btn.disabled = true;
+    pw.classList.add('show');
+    pf.style.width = '15%';
+    pl.textContent = 'Uploading…';
+
+    const steps = [
+      [30,  'Extracting files…'],
+      [55,  'Writing Dockerfile…'],
+      [75,  'Building Docker image…'],
+      [92,  'Starting container…'],
+    ];
+    let si = 0;
+    const ticker = setInterval(() => {
+      if (si < steps.length) {
+        pf.style.width = steps[si][0] + '%';
+        pl.textContent = steps[si][1];
+        si++;
+      }
+    }, 1400);
+
+    try {
+      await api('/upload', { method: 'POST', body: fd });
+      clearInterval(ticker);
+      pf.style.width = '100%';
+      pl.textContent = 'Done!';
+      toast('🚀 Bot deployed successfully!', 'success');
+      e.target.reset();
+      await loadBots();
+    } catch(err) {
+      clearInterval(ticker);
+      toast(`❌ ${err.message}`, 'error', 6000);
+    } finally {
+      setTimeout(() => { pw.classList.remove('show'); pf.style.width = '0%'; }, 2000);
+      btn.disabled = false;
+    }
+  };
+
+  // ── HELPERS ────────────────────────────────────────────────────────────────
+  function escHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function fmtDate(s) {
+    if (!s) return '—';
+    const d = new Date(s + 'Z');
+    return isNaN(d) ? s : d.toLocaleString();
+  }
+
+  // ── INIT ───────────────────────────────────────────────────────────────────
+  loadBots();
+  pollInterval = setInterval(loadBots, 8000);   // auto-refresh every 8 s
+</script>
+</body>
+</html>
