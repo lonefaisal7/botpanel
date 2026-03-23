@@ -11,6 +11,7 @@ Deploy, manage, and monitor your Telegram bots from a clean web dashboard — ru
 
 | Feature | Details |
 |---|---|
+| 🔒 Password Auth | Login required — bcrypt-hashed credentials, signed session cookies |
 | 📦 Upload bots | `.py` single file or `.zip` archive |
 | 🐳 Docker isolation | Every bot runs in its own `python:3.11-slim` container |
 | ⚙️ Auto Dockerfile | Generated per-bot with auto dependency install |
@@ -19,6 +20,8 @@ Deploy, manage, and monitor your Telegram bots from a clean web dashboard — ru
 | 📄 Live Logs | Tail Docker logs in a modal popup |
 | 🔁 Auto-refresh | Dashboard polls every 8 seconds |
 | 💾 SQLite DB | No external database needed |
+| 🔄 One-command Update | `sudo bash /opt/botpanel/update.sh` |
+| 🗑 Clean Uninstall | `sudo bash /opt/botpanel/uninstall.sh` |
 
 ---
 
@@ -28,7 +31,16 @@ Deploy, manage, and monitor your Telegram bots from a clean web dashboard — ru
 curl -sSL https://raw.githubusercontent.com/lonefaisal7/botpanel/main/setup.sh | sudo bash
 ```
 
-After install, open **http://YOUR\_VPS\_IP:8000** in your browser.
+The installer will prompt you to set an **admin password** for the web dashboard.
+
+For non-interactive installs (e.g. CI/scripts):
+```bash
+sudo BOTPANEL_PASSWORD=yourpassword bash setup.sh
+# or
+sudo bash setup.sh --password=yourpassword
+```
+
+After install, open **http://YOUR\_VPS\_IP:8000** and log in with username `admin`.
 
 > **Prerequisites:** Fresh Ubuntu 20.04/22.04/24.04 VPS with port **8000** open.
 
@@ -53,17 +65,25 @@ chmod +x run.sh
 botpanel/
 ├── app/
 │   ├── main.py               ← FastAPI app entry point
+│   ├── auth.py               ← Authentication (bcrypt + signed sessions)
 │   ├── models/bot.py         ← SQLAlchemy models + SQLite engine
-│   ├── routes/bots.py        ← API route definitions
+│   ├── routes/
+│   │   ├── bots.py           ← Bot API route definitions
+│   │   └── auth.py           ← Login / logout routes
 │   └── services/
 │       ├── bot_service.py    ← Upload, start, stop, delete logic
 │       └── docker_service.py ← Docker SDK wrapper
 ├── frontend/
-│   └── index.html            ← Full SPA dashboard (vanilla JS)
+│   ├── index.html            ← Full SPA dashboard (vanilla JS)
+│   └── login.html            ← Login page
 ├── bots/                     ← Bot source files (per bot_id folder)
 ├── uploads/                  ← Temporary upload staging
+├── credentials.json          ← Hashed admin credentials (auto-generated)
 ├── requirements.txt
 ├── setup.sh                  ← One-command VPS installer
+├── update.sh                 ← One-command updater
+├── uninstall.sh              ← Clean uninstaller
+├── set_password.py           ← Admin password utility
 ├── run.sh                    ← Start the server manually
 └── README.md
 ```
@@ -119,10 +139,19 @@ All containers run with `--restart unless-stopped`.
 
 ## 🔒 Security
 
+- **Password authentication** — Dashboard and API require login (username: `admin`)
+- Passwords stored as **bcrypt hashes** (never plain text)
+- Sessions use **signed cookies** (itsdangerous) with 7-day expiry
 - Only `.py` and `.zip` files accepted; 50 MB max upload
 - Zip-slip / path traversal protection
 - Bot code runs **exclusively inside Docker containers**
 - File paths sanitized via `os.path.realpath`
+
+### Change Admin Password
+
+```bash
+sudo /opt/botpanel/venv/bin/python /opt/botpanel/set_password.py
+```
 
 ---
 
@@ -134,6 +163,32 @@ journalctl -u botpanel -f       # Live logs
 systemctl restart botpanel      # Restart
 systemctl stop botpanel         # Stop
 ```
+
+---
+
+## 🔄 Update
+
+Pull the latest code and restart the service in one step:
+
+```bash
+sudo bash /opt/botpanel/update.sh
+```
+
+This preserves your bot data, database, and credentials. Only the application code and dependencies are refreshed.
+
+---
+
+## 🗑 Uninstall
+
+Completely remove Bot Hosting Panel, its service, bot containers, and images:
+
+```bash
+sudo bash /opt/botpanel/uninstall.sh
+```
+
+For non-interactive use: `sudo bash /opt/botpanel/uninstall.sh --yes`
+
+Docker and Python are **not** removed (they may be used by other software).
 
 ---
 
