@@ -1,7 +1,6 @@
 import uuid, datetime
 from sqlalchemy import Column, String, DateTime, create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 DATABASE_URL = "sqlite:///./bots.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
@@ -18,7 +17,7 @@ class Bot(Base):
     container_id = Column(String, nullable=True)
     image_id   = Column(String, nullable=True)
     entry_file = Column(String, default="bot.py")
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
 
 
 def get_db():
