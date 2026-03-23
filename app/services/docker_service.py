@@ -32,6 +32,8 @@ def run_container(bot_id: str, image_tag: str) -> str:
         name=name,
         restart_policy={"Name": "unless-stopped"},
         network_mode="bridge",
+        mem_limit="200m",
+        nano_cpus=500_000_000,  # 0.5 CPU
     )
     return container.id
 

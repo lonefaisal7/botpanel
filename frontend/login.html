@@ -21,7 +21,8 @@
       background: var(--bg); color: var(--text);
       font-family: 'Segoe UI', system-ui, sans-serif;
       min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
     }
     .login-card {
       background: var(--surface);
@@ -76,6 +77,21 @@
       display: none;
     }
     .error-msg.show { display: block; }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    .footer {
+      margin-top: 32px;
+      text-align: center;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.7;
+    }
+    .footer a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+    .footer a:hover { text-decoration: underline; }
+    .footer .heart { color: #da3633; }
   </style>
 </head>
 <body>
@@ -83,7 +99,7 @@
     <h1><span>Bot</span>Panel</h1>
     <p class="subtitle">Sign in to access the dashboard</p>
     <div class="error-msg" id="error-msg">Invalid username or password.</div>
-    <form method="POST" action="/api/auth/login">
+    <form id="login-form">
       <div class="field">
         <label for="username">Username</label>
         <input type="text" id="username" name="username" required autocomplete="username" autofocus/>
@@ -95,9 +111,44 @@
       <button type="submit" class="btn">Sign In</button>
     </form>
   </div>
+
+  <div class="footer">
+    Made with <span class="heart">&hearts;</span> by
+    <a href="https://t.me/lonefaisal" target="_blank">LONE FAISAL</a> &amp;
+    <a href="https://t.me/trueprofessor" target="_blank">Professor</a><br/>
+    ✦ <a href="https://t.me/arrow_network" target="_blank">Arrow Network</a> &nbsp;
+    ✦ <a href="https://t.me/kmri_network_reborn" target="_blank">KMRI Network</a>
+  </div>
+
   <script>
-    if (new URLSearchParams(location.search).has('error')) {
-      document.getElementById('error-msg').classList.add('show');
+    document.getElementById('login-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('error-msg');
+      errEl.classList.remove('show');
+
+      const fd = new FormData(e.target);
+      try {
+        const res = await fetch('/login', {
+          method: 'POST',
+          body: fd,
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          errEl.textContent = data.detail || 'Login failed.';
+          errEl.classList.add('show');
+          return;
+        }
+        localStorage.setItem('token', data.access_token);
+        window.location.href = '/';
+      } catch (err) {
+        errEl.textContent = 'Network error. Please try again.';
+        errEl.classList.add('show');
+      }
+    };
+
+    // If already logged in, redirect to dashboard
+    if (localStorage.getItem('token')) {
+      window.location.href = '/';
     }
   </script>
 </body>

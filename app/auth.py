@@ -1,102 +1,80 @@
 """
 Authentication module for Bot Hosting Panel.
 
-Stores bcrypt-hashed credentials in a JSON file.
-Uses signed cookies (itsdangerous) for session management.
+Uses JWT tokens with bcrypt-hashed password stored in .env.
 """
 
-import json, os, secrets, logging
-import bcrypt as _bcrypt
-from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from fastapi import Request, Response
-from fastapi.responses import RedirectResponse, JSONResponse
+import os
+import logging
+from datetime import datetime, timedelta, timezone
+
+from dotenv import load_dotenv
+from jose import JWTError, jwt
+from passlib.hash import bcrypt
+from fastapi import Request, HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+load_dotenv()
 
 log = logging.getLogger(__name__)
 
-CREDENTIALS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "credentials.json")
-CREDENTIALS_FILE = os.path.normpath(CREDENTIALS_FILE)
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
+ADMIN_PASSWORD_HASH = os.getenv("ADMIN_PASSWORD_HASH", "")
+SECRET_KEY = os.getenv("SECRET_KEY", "change-me-to-a-random-secret")
 
-SESSION_COOKIE = "bp_session"
-SESSION_MAX_AGE = 86400 * 7  # 7 days
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 
-_serializer = None
-
-
-def _get_serializer() -> URLSafeTimedSerializer:
-    global _serializer
-    if _serializer is None:
-        creds = _load_credentials()
-        _serializer = URLSafeTimedSerializer(creds["secret_key"])
-    return _serializer
+security = HTTPBearer(auto_error=False)
 
 
-def _load_credentials() -> dict:
-    if not os.path.isfile(CREDENTIALS_FILE):
-        return {}
-    with open(CREDENTIALS_FILE, "r") as f:
-        return json.load(f)
-
-
-def save_credentials(username: str, password: str):
-    """Hash password and persist credentials + a random secret key."""
-    secret_key = secrets.token_hex(32)
-    pw_hash = _bcrypt.hashpw(password.encode("utf-8"), _bcrypt.gensalt()).decode("utf-8")
-    data = {
-        "username": username,
-        "password_hash": pw_hash,
-        "secret_key": secret_key,
-    }
-    with open(CREDENTIALS_FILE, "w") as f:
-        json.dump(data, f, indent=2)
-    os.chmod(CREDENTIALS_FILE, 0o600)
-    log.info("Credentials saved to %s", CREDENTIALS_FILE)
-
-
-def is_configured() -> bool:
-    """Return True if credentials file exists with required fields."""
-    creds = _load_credentials()
-    return bool(creds.get("username") and creds.get("password_hash") and creds.get("secret_key"))
-
-
-def verify_login(username: str, password: str) -> bool:
-    creds = _load_credentials()
-    if not creds:
-        return False
-    if username != creds.get("username"):
-        return False
-    stored_hash = creds["password_hash"].encode("utf-8")
-    return _bcrypt.checkpw(password.encode("utf-8"), stored_hash)
-
-
-def create_session(response: Response, username: str):
-    s = _get_serializer()
-    token = s.dumps({"user": username})
-    response.set_cookie(
-        SESSION_COOKIE, token,
-        max_age=SESSION_MAX_AGE,
-        httponly=True,
-        samesite="lax",
-    )
-
-
-def get_current_user(request: Request) -> str | None:
-    token = request.cookies.get(SESSION_COOKIE)
-    if not token:
-        return None
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a plain password against a bcrypt hash."""
     try:
-        s = _get_serializer()
-        data = s.loads(token, max_age=SESSION_MAX_AGE)
-        return data.get("user")
-    except (BadSignature, SignatureExpired):
-        return None
+        return bcrypt.verify(plain_password, hashed_password)
+    except Exception:
+        return False
 
 
-def clear_session(response: Response):
-    response.delete_cookie(SESSION_COOKIE)
+def authenticate_user(username: str, password: str) -> bool:
+    """Authenticate admin user against .env credentials."""
+    if not ADMIN_PASSWORD_HASH:
+        return False
+    if username != ADMIN_USERNAME:
+        return False
+    return verify_password(password, ADMIN_PASSWORD_HASH)
+
+
+def create_access_token(username: str) -> str:
+    """Create a JWT access token."""
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    payload = {"sub": username, "exp": expire}
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def verify_token(token: str) -> str:
+    """Verify JWT token and return username. Raises HTTPException on failure."""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return username
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> str:
+    """Dependency: extract and verify the current user from the JWT Bearer token."""
+    if credentials is None:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return verify_token(credentials.credentials)
 
 
 # Paths that don't require authentication
-PUBLIC_PATHS = {"/login", "/api/auth/login", "/health"}
+PUBLIC_PATHS = {"/login", "/api/auth/login", "/health", "/docs", "/openapi.json", "/redoc"}
 PUBLIC_PREFIXES = ("/static/",)
 
 
@@ -112,19 +90,25 @@ def requires_auth(request: Request) -> bool:
 
 
 async def auth_middleware(request: Request, call_next):
-    """Middleware that redirects unauthenticated requests to /login."""
-    if not is_configured():
-        # No credentials set — allow open access (first-run scenario)
-        return await call_next(request)
-
+    """Middleware that returns 401 for unauthenticated API requests
+    and redirects browser requests to /login."""
     if not requires_auth(request):
         return await call_next(request)
 
-    user = get_current_user(request)
-    if user:
-        return await call_next(request)
+    # Check for Bearer token in Authorization header
+    auth_header = request.headers.get("authorization", "")
+    if auth_header.startswith("Bearer "):
+        token = auth_header[7:]
+        try:
+            verify_token(token)
+            return await call_next(request)
+        except HTTPException:
+            pass
 
     # Not authenticated
     if request.url.path.startswith("/api/"):
+        from fastapi.responses import JSONResponse
         return JSONResponse({"detail": "Not authenticated"}, status_code=401)
+
+    from fastapi.responses import RedirectResponse
     return RedirectResponse("/login", status_code=302)

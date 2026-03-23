@@ -18,7 +18,7 @@
       --radius:  8px;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
 
     /* ── NAV ─────────────────────────────────────────────── */
     nav {
@@ -32,9 +32,15 @@
     nav .logo { font-size: 1.35rem; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
     nav .logo span { color: #58a6ff; }
     nav .tagline { color: var(--muted); font-size: 0.82rem; margin-left: auto; }
+    nav .logout-btn {
+      background: #21262d; border: 1px solid var(--border); color: var(--text);
+      padding: 6px 14px; border-radius: 6px; font-size: .82rem; cursor: pointer;
+      margin-left: 12px; transition: opacity .18s;
+    }
+    nav .logout-btn:hover { opacity: .7; }
 
     /* ── MAIN ────────────────────────────────────────────── */
-    main { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
+    main { max-width: 1100px; margin: 0 auto; padding: 32px 20px; flex: 1; }
 
     /* ── UPLOAD CARD ─────────────────────────────────────── */
     .card {
@@ -221,6 +227,24 @@
     .stat-pill span { color: var(--muted); }
     .stat-pill strong { color: var(--text); margin-left: 6px; }
 
+    /* ── FOOTER ──────────────────────────────────────────── */
+    .footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 20px 16px;
+      color: var(--muted);
+      font-size: .8rem;
+      line-height: 1.8;
+    }
+    .footer a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+    .footer a:hover { text-decoration: underline; }
+    .footer .heart { color: #da3633; font-size: 1rem; }
+    .footer .channels { margin-top: 4px; }
+
     @media (max-width: 600px) {
       .upload-form { flex-direction: column; }
       .actions { flex-direction: column; }
@@ -231,22 +255,23 @@
 <body>
 
 <nav>
-  <div class="logo">🤖 <span>Bot</span>Panel</div>
+  <div class="logo">&#x1F916; <span>Bot</span>Panel</div>
   <div class="tagline">Self-Hosted Telegram Bot Manager</div>
+  <button class="logout-btn" onclick="logout()">Logout</button>
 </nav>
 
 <main>
   <!-- Stats bar -->
   <div class="stats-bar" id="stats-bar">
-    <div class="stat-pill"><span>Total Bots:</span><strong id="stat-total">—</strong></div>
-    <div class="stat-pill"><span>Running:</span><strong id="stat-running" style="color:#3fb950">—</strong></div>
-    <div class="stat-pill"><span>Stopped:</span><strong id="stat-stopped" style="color:#f85149">—</strong></div>
-    <div class="stat-pill"><span>Server:</span><strong style="color:#58a6ff">Online ✓</strong></div>
+    <div class="stat-pill"><span>Total Bots:</span><strong id="stat-total">&mdash;</strong></div>
+    <div class="stat-pill"><span>Running:</span><strong id="stat-running" style="color:#3fb950">&mdash;</strong></div>
+    <div class="stat-pill"><span>Stopped:</span><strong id="stat-stopped" style="color:#f85149">&mdash;</strong></div>
+    <div class="stat-pill"><span>Server:</span><strong style="color:#58a6ff">Online &#x2713;</strong></div>
   </div>
 
   <!-- Upload card -->
   <div class="card">
-    <h2>➕ Deploy New Bot</h2>
+    <h2>&#x2795; Deploy New Bot</h2>
     <form class="upload-form" id="upload-form" enctype="multipart/form-data">
       <div class="field">
         <label for="bot-name">Bot Name</label>
@@ -257,18 +282,18 @@
         <input type="file" id="bot-file" name="file" accept=".py,.zip" required/>
       </div>
       <button type="submit" class="btn btn-primary" id="upload-btn">
-        ⬆ Upload &amp; Deploy
+        &#x2B06; Upload &amp; Deploy
       </button>
     </form>
     <div class="progress-wrap" id="progress-wrap">
       <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
-      <div class="progress-label" id="progress-label">Building image…</div>
+      <div class="progress-label" id="progress-label">Building image&hellip;</div>
     </div>
   </div>
 
   <!-- Bot list card -->
   <div class="card">
-    <h2>📋 Deployed Bots</h2>
+    <h2>&#x1F4CB; Deployed Bots</h2>
     <div class="table-wrap">
       <table>
         <thead>
@@ -281,25 +306,36 @@
           </tr>
         </thead>
         <tbody id="bot-table-body">
-          <tr><td colspan="5"><div class="empty-state"><div class="icon">🤖</div><p>Loading bots…</p></div></td></tr>
+          <tr><td colspan="5"><div class="empty-state"><div class="icon">&#x1F916;</div><p>Loading bots&hellip;</p></div></td></tr>
         </tbody>
       </table>
     </div>
   </div>
 </main>
 
+<!-- Branded footer -->
+<footer class="footer">
+  Made with <span class="heart">&hearts;</span> by
+  <a href="https://t.me/lonefaisal" target="_blank">LONE FAISAL</a> &amp;
+  <a href="https://t.me/trueprofessor" target="_blank">Professor</a>
+  <div class="channels">
+    &#x2726; <a href="https://t.me/arrow_network" target="_blank">Arrow Network</a> &nbsp;&nbsp;
+    &#x2726; <a href="https://t.me/kmri_network_reborn" target="_blank">KMRI Network</a>
+  </div>
+</footer>
+
 <!-- Logs modal -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
     <div class="modal-header">
-      <h3 id="modal-title">📄 Logs</h3>
-      <button class="modal-close" id="modal-close">✕</button>
+      <h3 id="modal-title">&#x1F4C4; Logs</h3>
+      <button class="modal-close" id="modal-close">&#x2715;</button>
     </div>
     <div class="modal-body">
-      <pre id="log-output">Loading…</pre>
+      <pre id="log-output">Loading&hellip;</pre>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost btn-sm" id="refresh-logs-btn">🔄 Refresh</button>
+      <button class="btn btn-ghost btn-sm" id="refresh-logs-btn">&#x1F504; Refresh</button>
       <button class="btn btn-ghost btn-sm" id="modal-close-btn">Close</button>
     </div>
   </div>
@@ -313,20 +349,47 @@
   let currentLogBotId = null;
   let pollInterval = null;
 
+  // ── AUTH ───────────────────────────────────────────────────────────────────
+  function getToken() {
+    return localStorage.getItem('token');
+  }
+
+  function authHeaders() {
+    const token = getToken();
+    return token ? { 'Authorization': 'Bearer ' + token } : {};
+  }
+
+  function logout() {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  }
+
+  // Redirect to login if no token
+  if (!getToken()) {
+    window.location.href = '/login';
+  }
+
   // ── TOAST ──────────────────────────────────────────────────────────────────
   function toast(msg, type = 'info', duration = 3500) {
     const el = document.getElementById('toast');
     el.textContent = msg;
-    el.className = `show ${type}`;
+    el.className = 'show ' + type;
     clearTimeout(el._t);
     el._t = setTimeout(() => el.classList.remove('show'), duration);
   }
 
   // ── FETCH WRAPPER ──────────────────────────────────────────────────────────
   async function api(path, opts = {}) {
+    if (!opts.headers) opts.headers = {};
+    Object.assign(opts.headers, authHeaders());
+
     const res = await fetch(API + path, opts);
+    if (res.status === 401) {
+      logout();
+      return;
+    }
     const json = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(json.detail || `HTTP ${res.status}`);
+    if (!res.ok) throw new Error(json.detail || 'HTTP ' + res.status);
     return json;
   }
 
@@ -341,7 +404,7 @@
       not_found:'badge-stopped',
     };
     const cls = map[status] || 'badge-stopped';
-    return `<span class="badge ${cls}">${status}</span>`;
+    return '<span class="badge ' + cls + '">' + status + '</span>';
   }
 
   // ── LOAD BOTS ──────────────────────────────────────────────────────────────
@@ -349,6 +412,7 @@
     let bots;
     try { bots = await api('/list'); }
     catch(e) { return; }
+    if (!bots) return;
 
     const body = document.getElementById('bot-table-body');
     document.getElementById('stat-total').textContent   = bots.length;
@@ -356,58 +420,54 @@
     document.getElementById('stat-stopped').textContent = bots.filter(b => b.status !== 'running').length;
 
     if (!bots.length) {
-      body.innerHTML = `<tr><td colspan="5"><div class="empty-state">
-        <div class="icon">🤖</div>
-        <p>No bots deployed yet. Upload your first bot above!</p>
-      </div></td></tr>`;
+      body.innerHTML = '<tr><td colspan="5"><div class="empty-state">' +
+        '<div class="icon">&#x1F916;</div>' +
+        '<p>No bots deployed yet. Upload your first bot above!</p>' +
+        '</div></td></tr>';
       return;
     }
 
-    body.innerHTML = bots.map(b => `
-      <tr id="row-${b.id}">
-        <td><strong>${escHtml(b.name)}</strong></td>
-        <td>${badge(b.status)}</td>
-        <td><code style="font-size:.8rem;color:#79c0ff">${escHtml(b.entry_file)}</code></td>
-        <td style="color:var(--muted);font-size:.82rem">${fmtDate(b.created_at)}</td>
-        <td>
-          <div class="actions">
-            <button class="btn btn-primary btn-sm"  onclick="botAction('${b.id}','start')">▶ Start</button>
-            <button class="btn btn-warn    btn-sm"  onclick="botAction('${b.id}','stop')">⏸ Stop</button>
-            <button class="btn btn-blue    btn-sm"  onclick="botAction('${b.id}','restart')">🔄 Restart</button>
-            <button class="btn btn-ghost   btn-sm"  onclick="openLogs('${b.id}','${escHtml(b.name)}')">📄 Logs</button>
-            <button class="btn btn-danger  btn-sm"  onclick="confirmDelete('${b.id}','${escHtml(b.name)}')">🗑 Delete</button>
-          </div>
-        </td>
-      </tr>`).join('');
+    body.innerHTML = bots.map(b => '<tr id="row-' + b.id + '">' +
+      '<td><strong>' + escHtml(b.name) + '</strong></td>' +
+      '<td>' + badge(b.status) + '</td>' +
+      '<td><code style="font-size:.8rem;color:#79c0ff">' + escHtml(b.entry_file) + '</code></td>' +
+      '<td style="color:var(--muted);font-size:.82rem">' + fmtDate(b.created_at) + '</td>' +
+      '<td><div class="actions">' +
+        '<button class="btn btn-primary btn-sm" onclick="botAction(\'' + b.id + '\',\'start\')">&#x25B6; Start</button>' +
+        '<button class="btn btn-warn btn-sm" onclick="botAction(\'' + b.id + '\',\'stop\')">&#x23F8; Stop</button>' +
+        '<button class="btn btn-blue btn-sm" onclick="botAction(\'' + b.id + '\',\'restart\')">&#x1F504; Restart</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="openLogs(\'' + b.id + '\',\'' + escHtml(b.name) + '\')">&#x1F4C4; Logs</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="confirmDelete(\'' + b.id + '\',\'' + escHtml(b.name) + '\')">&#x1F5D1; Delete</button>' +
+      '</div></td></tr>').join('');
   }
 
   // ── BOT ACTION ─────────────────────────────────────────────────────────────
   async function botAction(id, action) {
     try {
-      const res = await api(`/${id}/${action}`, { method: 'POST' });
-      toast(`✅ Bot ${action}ed successfully.`, 'success');
+      await api('/' + id + '/' + action, { method: 'POST' });
+      toast('Bot ' + action + 'ed successfully.', 'success');
       await loadBots();
     } catch(e) {
-      toast(`❌ ${e.message}`, 'error', 5000);
+      toast(e.message, 'error', 5000);
     }
   }
 
   // ── DELETE CONFIRM ─────────────────────────────────────────────────────────
   async function confirmDelete(id, name) {
-    if (!confirm(`Delete bot "${name}"?\nThis will stop the container and remove all files.`)) return;
+    if (!confirm('Delete bot "' + name + '"?\nThis will stop the container and remove all files.')) return;
     try {
-      await api(`/${id}`, { method: 'DELETE' });
-      toast(`🗑 Bot "${name}" deleted.`, 'info');
+      await api('/' + id, { method: 'DELETE' });
+      toast('Bot "' + name + '" deleted.', 'info');
       await loadBots();
     } catch(e) {
-      toast(`❌ ${e.message}`, 'error', 5000);
+      toast(e.message, 'error', 5000);
     }
   }
 
   // ── LOGS MODAL ─────────────────────────────────────────────────────────────
   async function openLogs(id, name) {
     currentLogBotId = id;
-    document.getElementById('modal-title').textContent = `📄 Logs — ${name}`;
+    document.getElementById('modal-title').textContent = 'Logs — ' + name;
     document.getElementById('modal-overlay').classList.add('open');
     await fetchLogs();
   }
@@ -416,11 +476,12 @@
     if (!currentLogBotId) return;
     const pre = document.getElementById('log-output');
     try {
-      const data = await api(`/${currentLogBotId}/logs`);
+      const data = await api('/' + currentLogBotId + '/logs');
+      if (!data) return;
       pre.textContent = data.logs || '(no output yet)';
       pre.scrollTop = pre.scrollHeight;
     } catch(e) {
-      pre.textContent = `Error: ${e.message}`;
+      pre.textContent = 'Error: ' + e.message;
     }
   }
 
@@ -447,13 +508,13 @@
     btn.disabled = true;
     pw.classList.add('show');
     pf.style.width = '15%';
-    pl.textContent = 'Uploading…';
+    pl.textContent = 'Uploading\u2026';
 
     const steps = [
-      [30,  'Extracting files…'],
-      [55,  'Writing Dockerfile…'],
-      [75,  'Building Docker image…'],
-      [92,  'Starting container…'],
+      [30,  'Extracting files\u2026'],
+      [55,  'Writing Dockerfile\u2026'],
+      [75,  'Building Docker image\u2026'],
+      [92,  'Starting container\u2026'],
     ];
     let si = 0;
     const ticker = setInterval(() => {
@@ -469,12 +530,12 @@
       clearInterval(ticker);
       pf.style.width = '100%';
       pl.textContent = 'Done!';
-      toast('🚀 Bot deployed successfully!', 'success');
+      toast('Bot deployed successfully!', 'success');
       e.target.reset();
       await loadBots();
     } catch(err) {
       clearInterval(ticker);
-      toast(`❌ ${err.message}`, 'error', 6000);
+      toast(err.message, 'error', 6000);
     } finally {
       setTimeout(() => { pw.classList.remove('show'); pf.style.width = '0%'; }, 2000);
       btn.disabled = false;
@@ -486,14 +547,14 @@
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
   function fmtDate(s) {
-    if (!s) return '—';
+    if (!s) return '\u2014';
     const d = new Date(s + 'Z');
     return isNaN(d) ? s : d.toLocaleString();
   }
 
   // ── INIT ───────────────────────────────────────────────────────────────────
   loadBots();
-  pollInterval = setInterval(loadBots, 8000);   // auto-refresh every 8 s
+  pollInterval = setInterval(loadBots, 8000);
 </script>
 </body>
 </html>

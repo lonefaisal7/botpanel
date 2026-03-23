@@ -1,6 +1,6 @@
 # 🤖 Bot Hosting Panel
 
-A **self-hosted Telegram bot hosting panel** built with FastAPI + Docker.  
+A **self-hosted Telegram bot hosting panel** built with FastAPI + Docker.
 Deploy, manage, and monitor your Telegram bots from a clean web dashboard — running on your own Ubuntu VPS.
 
 > **Repository:** [https://github.com/lonefaisal7/botpanel](https://github.com/lonefaisal7/botpanel)
@@ -11,7 +11,7 @@ Deploy, manage, and monitor your Telegram bots from a clean web dashboard — ru
 
 | Feature | Details |
 |---|---|
-| 🔒 Password Auth | Login required — bcrypt-hashed credentials, signed session cookies |
+| 🔒 JWT Auth | Login required — bcrypt-hashed password, JWT Bearer tokens |
 | 📦 Upload bots | `.py` single file or `.zip` archive |
 | 🐳 Docker isolation | Every bot runs in its own `python:3.11-slim` container |
 | ⚙️ Auto Dockerfile | Generated per-bot with auto dependency install |
@@ -22,6 +22,7 @@ Deploy, manage, and monitor your Telegram bots from a clean web dashboard — ru
 | 💾 SQLite DB | No external database needed |
 | 🔄 One-command Update | `sudo bash /opt/botpanel/update.sh` |
 | 🗑 Clean Uninstall | `sudo bash /opt/botpanel/uninstall.sh` |
+| 🛡 Resource limits | 200MB RAM + 0.5 CPU per bot container |
 
 ---
 
@@ -53,6 +54,7 @@ git clone https://github.com/lonefaisal7/botpanel
 cd botpanel
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
+python3 set_password.py        # Set admin password → writes .env
 chmod +x run.sh
 ./run.sh
 ```
@@ -65,7 +67,7 @@ chmod +x run.sh
 botpanel/
 ├── app/
 │   ├── main.py               ← FastAPI app entry point
-│   ├── auth.py               ← Authentication (bcrypt + signed sessions)
+│   ├── auth.py               ← JWT authentication (bcrypt + python-jose)
 │   ├── models/bot.py         ← SQLAlchemy models + SQLite engine
 │   ├── routes/
 │   │   ├── bots.py           ← Bot API route definitions
@@ -78,8 +80,10 @@ botpanel/
 │   └── login.html            ← Login page
 ├── bots/                     ← Bot source files (per bot_id folder)
 ├── uploads/                  ← Temporary upload staging
-├── credentials.json          ← Hashed admin credentials (auto-generated)
+├── .env                      ← Admin credentials + secret key (auto-generated)
+├── .env.example              ← Template for .env
 ├── requirements.txt
+├── botpanel.service          ← Systemd unit file
 ├── setup.sh                  ← One-command VPS installer
 ├── update.sh                 ← One-command updater
 ├── uninstall.sh              ← Clean uninstaller
@@ -94,6 +98,7 @@ botpanel/
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| `POST` | `/login` | Authenticate and receive JWT token |
 | `POST` | `/api/bots/upload` | Upload bot (`file` + `bot_name`) |
 | `GET`  | `/api/bots/list` | List all bots with live status |
 | `POST` | `/api/bots/{id}/start` | Start bot container |
@@ -102,6 +107,8 @@ botpanel/
 | `DELETE` | `/api/bots/{id}` | Delete bot (container + image + files) |
 | `GET`  | `/api/bots/{id}/logs` | Get last 150 lines of Docker logs |
 | `GET`  | `/health` | Health check |
+
+All endpoints except `/login` and `/health` require `Authorization: Bearer <token>` header.
 
 Interactive Swagger docs: **http://YOUR\_VPS\_IP:8000/docs**
 
@@ -133,18 +140,18 @@ RUN pip install --no-cache-dir -r requirements.txt
 CMD ["python", "-u", "bot.py"]
 ```
 
-All containers run with `--restart unless-stopped`.
+All containers run with `--restart unless-stopped`, 200MB memory limit, and 0.5 CPU limit.
 
 ---
 
 ## 🔒 Security
 
-- **Password authentication** — Dashboard and API require login (username: `admin`)
-- Passwords stored as **bcrypt hashes** (never plain text)
-- Sessions use **signed cookies** (itsdangerous) with 7-day expiry
+- **JWT authentication** — Dashboard and API require Bearer token (username: `admin`)
+- Passwords stored as **bcrypt hashes** in `.env` (never plain text)
+- JWT tokens signed with a random SECRET\_KEY
 - Only `.py` and `.zip` files accepted; 50 MB max upload
 - Zip-slip / path traversal protection
-- Bot code runs **exclusively inside Docker containers**
+- Bot code runs **exclusively inside Docker containers** with resource limits
 - File paths sanitized via `os.path.realpath`
 
 ### Change Admin Password
@@ -201,24 +208,17 @@ Docker and Python are **not** removed (they may be used by other software).
 
 ---
 
-## 👤 Maintained By
+## ❤️ Made with love by
 
-**Lone Faisal (lonefaisal7)**  
-🔗 GitHub: https://github.com/lonefaisal7
+- **LONE FAISAL** → [https://t.me/lonefaisal](https://t.me/lonefaisal)
+- **Professor** → [https://t.me/trueprofessor](https://t.me/trueprofessor)
 
-<img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg" width="16"/> Telegram:
-- https://t.me/lonefaisal  
-- https://t.me/trueprofessor  
+### 📢 Official Channels
+
+- ✦ **Arrow Network** → [https://t.me/arrow_network](https://t.me/arrow_network)
+- ✦ **KMRI Network** → [https://t.me/kmri_network_reborn](https://t.me/kmri_network_reborn)
 
 ---
-
-## 📢 Official Channels
-
-1. ✦ **Arrow Network**  
-   <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg" width="16"/> https://t.me/arrow_network  
-
-2. ✦ **KMRI Network**  
-   <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg" width="16"/> https://t.me/kmri_network_reborn  
 
 ## 📄 License
 

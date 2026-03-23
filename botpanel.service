@@ -1,0 +1,17 @@
+[Unit]
+Description=Bot Hosting Panel (lonefaisal7/botpanel)
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/botpanel
+ExecStart=/opt/botpanel/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=botpanel
+
+[Install]
+WantedBy=multi-user.target

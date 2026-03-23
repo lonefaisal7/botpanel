@@ -90,37 +90,53 @@ ok "Python dependencies installed."
 info "Creating required directories…"
 mkdir -p bots uploads
 chmod 755 bots uploads
-chmod +x run.sh setup.sh
+chmod +x run.sh setup.sh update.sh uninstall.sh
 ok "Directories ready."
 
-# ── 7. Systemd service ───────────────────────────────────────────────────────
+# ── 7. Setup admin password & .env ───────────────────────────────────────────
+if [ ! -f "$INSTALL_DIR/.env" ]; then
+  info "Setting up admin credentials…"
+  # Check for --password= argument
+  ADMIN_PASS=""
+  for arg in "$@"; do
+    case "$arg" in
+      --password=*) ADMIN_PASS="${arg#*=}" ;;
+    esac
+  done
+  # Check env var
+  if [ -z "$ADMIN_PASS" ] && [ -n "$BOTPANEL_PASSWORD" ]; then
+    ADMIN_PASS="$BOTPANEL_PASSWORD"
+  fi
+  # Interactive prompt if needed
+  if [ -z "$ADMIN_PASS" ] && [ -t 0 ]; then
+    read -s -p "Enter admin password: " ADMIN_PASS
+    echo ""
+    read -s -p "Confirm admin password: " ADMIN_PASS2
+    echo ""
+    if [ "$ADMIN_PASS" != "$ADMIN_PASS2" ]; then
+      err "Passwords do not match."
+    fi
+  fi
+  if [ -z "$ADMIN_PASS" ]; then
+    ADMIN_PASS="admin"
+    warn "No password provided — using default password 'admin'. Change it after install!"
+  fi
+  BOTPANEL_PASSWORD="$ADMIN_PASS" "$INSTALL_DIR/venv/bin/python" "$INSTALL_DIR/set_password.py"
+  ok "Admin credentials saved to .env"
+else
+  ok ".env already exists — keeping existing credentials."
+fi
+
+# ── 8. Systemd service ───────────────────────────────────────────────────────
 info "Creating systemd service: botpanel…"
-cat > /etc/systemd/system/botpanel.service << EOF
-[Unit]
-Description=Bot Hosting Panel (lonefaisal7/botpanel)
-After=network.target docker.service
-Requires=docker.service
-
-[Service]
-Type=simple
-WorkingDirectory=$INSTALL_DIR
-ExecStart=$INSTALL_DIR/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
-Restart=always
-RestartSec=5
-StandardOutput=journal
-StandardError=journal
-SyslogIdentifier=botpanel
-
-[Install]
-WantedBy=multi-user.target
-EOF
+cp "$INSTALL_DIR/botpanel.service" /etc/systemd/system/botpanel.service
 
 systemctl daemon-reload
 systemctl enable botpanel
 systemctl restart botpanel
 ok "Systemd service 'botpanel' started."
 
-# ── 8. Firewall ───────────────────────────────────────────────────────────────
+# ── 9. Firewall ───────────────────────────────────────────────────────────────
 if command -v ufw &>/dev/null; then
   ufw allow 8000/tcp 2>/dev/null || true
   info "UFW: port 8000 opened."
