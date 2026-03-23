@@ -93,38 +93,11 @@ chmod 755 bots uploads
 chmod +x run.sh setup.sh update.sh uninstall.sh
 ok "Directories ready."
 
-# ── 7. Setup admin password & .env ───────────────────────────────────────────
-if [ ! -f "$INSTALL_DIR/.env" ]; then
-  info "Setting up admin credentials…"
-  # Check for --password= argument
-  ADMIN_PASS=""
-  for arg in "$@"; do
-    case "$arg" in
-      --password=*) ADMIN_PASS="${arg#*=}" ;;
-    esac
-  done
-  # Check env var
-  if [ -z "$ADMIN_PASS" ] && [ -n "$BOTPANEL_PASSWORD" ]; then
-    ADMIN_PASS="$BOTPANEL_PASSWORD"
-  fi
-  # Interactive prompt if needed
-  if [ -z "$ADMIN_PASS" ] && [ -t 0 ]; then
-    read -s -p "Enter admin password: " ADMIN_PASS
-    echo ""
-    read -s -p "Confirm admin password: " ADMIN_PASS2
-    echo ""
-    if [ "$ADMIN_PASS" != "$ADMIN_PASS2" ]; then
-      err "Passwords do not match."
-    fi
-  fi
-  if [ -z "$ADMIN_PASS" ]; then
-    ADMIN_PASS="admin"
-    warn "No password provided — using default password 'admin'. Change it after install!"
-  fi
-  BOTPANEL_PASSWORD="$ADMIN_PASS" "$INSTALL_DIR/venv/bin/python" "$INSTALL_DIR/set_password.py"
-  ok "Admin credentials saved to .env"
-else
+# ── 7. Admin credentials ─────────────────────────────────────────────────────
+if [ -f "$INSTALL_DIR/.env" ]; then
   ok ".env already exists — keeping existing credentials."
+else
+  info "No .env file — admin account will be created on first web visit."
 fi
 
 # ── 8. Systemd service ───────────────────────────────────────────────────────

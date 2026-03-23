@@ -32,16 +32,7 @@ Deploy, manage, and monitor your Telegram bots from a clean web dashboard — ru
 curl -sSL https://raw.githubusercontent.com/lonefaisal7/botpanel/main/setup.sh | sudo bash
 ```
 
-The installer will prompt you to set an **admin password** for the web dashboard.
-
-For non-interactive installs (e.g. CI/scripts):
-```bash
-sudo BOTPANEL_PASSWORD=yourpassword bash setup.sh
-# or
-sudo bash setup.sh --password=yourpassword
-```
-
-After install, open **http://YOUR\_VPS\_IP:8000** and log in with username `admin`.
+After install, open **http://YOUR\_VPS\_IP:8000** in your browser. On first visit you will see a **Create Admin Account** screen where you set your username and password. Credentials are securely stored using bcrypt hashing. On subsequent visits you will see the normal login screen.
 
 > **Prerequisites:** Fresh Ubuntu 20.04/22.04/24.04 VPS with port **8000** open.
 
@@ -54,10 +45,12 @@ git clone https://github.com/lonefaisal7/botpanel
 cd botpanel
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-python3 set_password.py        # Set admin password → writes .env
 chmod +x run.sh
 ./run.sh
+# Open http://localhost:8000 — create your admin account on first visit
 ```
+
+To pre-configure credentials (e.g. CI/scripts) you can still run `python3 set_password.py` before starting the server.
 
 ---
 
@@ -98,6 +91,8 @@ botpanel/
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| `GET`  | `/api/auth/setup-status` | Check if admin account exists |
+| `POST` | `/api/auth/setup` | Create admin account (first run only) |
 | `POST` | `/login` | Authenticate and receive JWT token |
 | `POST` | `/api/bots/upload` | Upload bot (`file` + `bot_name`) |
 | `GET`  | `/api/bots/list` | List all bots with live status |
@@ -146,7 +141,8 @@ All containers run with `--restart unless-stopped`, 200MB memory limit, and 0.5 
 
 ## 🔒 Security
 
-- **JWT authentication** — Dashboard and API require Bearer token (username: `admin`)
+- **No default credentials** — first visit requires creating an admin account
+- **JWT authentication** — Dashboard and API require Bearer token
 - Passwords stored as **bcrypt hashes** in `.env` (never plain text)
 - JWT tokens signed with a random SECRET\_KEY
 - Only `.py` and `.zip` files accepted; 50 MB max upload
