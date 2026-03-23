@@ -93,7 +93,7 @@ async def get_current_user(
 
 # Paths that don't require authentication
 PUBLIC_PATHS = {
-    "/login", "/api/auth/login", "/health", "/docs", "/openapi.json", "/redoc",
+    "/", "/login", "/api/auth/login", "/health", "/docs", "/openapi.json", "/redoc",
     "/setup", "/api/auth/setup", "/api/auth/setup-status",
 }
 PUBLIC_PREFIXES = ("/static/",)

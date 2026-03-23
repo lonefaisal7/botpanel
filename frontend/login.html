@@ -154,10 +154,25 @@
       })
       .catch(() => {});
 
-    // If already logged in, redirect to dashboard
-    if (localStorage.getItem('token')) {
-      window.location.href = '/';
-    }
+    // If already logged in with a valid token, redirect to dashboard
+    (async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      try {
+        const res = await fetch('/api/bots/list', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.ok) {
+          window.location.href = '/';
+        } else {
+          // Token is invalid or expired — clear it and stay on login
+          localStorage.removeItem('token');
+        }
+      } catch {
+        // Network error — clear stale token
+        localStorage.removeItem('token');
+      }
+    })();
   </script>
 </body>
 </html>
