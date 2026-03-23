@@ -39,7 +39,7 @@ After install, open **http://YOUR\_VPS\_IP:8000** in your browser.
 ```bash
 git clone https://github.com/lonefaisal7/botpanel
 cd botpanel
-python3.11 -m venv venv && source venv/bin/activate
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 chmod +x run.sh
 ./run.sh
