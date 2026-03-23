@@ -36,6 +36,14 @@ apt-get install -y \
   gnupg lsb-release software-properties-common
 ok "System dependencies installed."
 
+# ── Detect usable Python 3 ──────────────────────────────────────────────────
+PYTHON3=$(command -v python3)
+if [ -z "$PYTHON3" ]; then
+  err "python3 not found after install. Cannot continue."
+fi
+PY_VER=$("$PYTHON3" --version | awk '{print $2}')
+info "Detected Python: $PYTHON3 ($PY_VER)"
+
 # ── 3. Docker ────────────────────────────────────────────────────────────────
 if ! command -v docker &>/dev/null; then
   info "Installing Docker…"
@@ -72,7 +80,7 @@ cd "$INSTALL_DIR"
 
 # ── 5. Python virtual environment ────────────────────────────────────────────
 info "Creating Python virtual environment…"
-python3 -m venv venv
+"$PYTHON3" -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt

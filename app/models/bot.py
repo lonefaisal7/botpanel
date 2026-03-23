@@ -17,7 +17,7 @@ class Bot(Base):
     container_id = Column(String, nullable=True)
     image_id   = Column(String, nullable=True)
     entry_file = Column(String, default="bot.py")
-    created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 
 def get_db():
