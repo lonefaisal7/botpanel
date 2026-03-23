@@ -146,11 +146,24 @@ systemctl stop botpanel         # Stop
 
 ---
 
-## 👤 Author
+## 👤 Maintained By
 
-**lonefaisal7** — [https://github.com/lonefaisal7/botpanel](https://github.com/lonefaisal7/botpanel)
+**Lone Faisal (lonefaisal7)**  
+🔗 GitHub: https://github.com/lonefaisal7
+
+<img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg" width="16"/> Telegram:
+- https://t.me/lonefaisal  
+- https://t.me/trueprofessor  
 
 ---
+
+## 📢 Official Channels
+
+1. ✦ **Arrow Network**  
+   <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg" width="16"/> https://t.me/arrow_network  
+
+2. ✦ **KMRI Network**  
+   <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg" width="16"/> https://t.me/kmri_network_reborn  
 
 ## 📄 License
 
