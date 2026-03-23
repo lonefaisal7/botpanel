@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — Bot Hosting Panel</title>
+  <style>
+    :root {
+      --bg:      #0d1117;
+      --surface: #161b22;
+      --border:  #30363d;
+      --accent:  #238636;
+      --accent2: #1f6feb;
+      --danger:  #da3633;
+      --text:    #e6edf3;
+      --muted:   #8b949e;
+      --radius:  8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px 36px;
+      width: min(400px, 92vw);
+    }
+    .login-card h1 {
+      font-size: 1.4rem; font-weight: 700;
+      margin-bottom: 8px; text-align: center;
+    }
+    .login-card h1 span { color: #58a6ff; }
+    .login-card .subtitle {
+      color: var(--muted); font-size: .85rem;
+      text-align: center; margin-bottom: 28px;
+    }
+    .field {
+      display: flex; flex-direction: column; gap: 6px;
+      margin-bottom: 18px;
+    }
+    .field label { font-size: .85rem; color: var(--muted); }
+    .field input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 10px 14px;
+      font-size: .95rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .field input:focus { border-color: #58a6ff; }
+    .btn {
+      display: block; width: 100%;
+      padding: 11px 16px;
+      border: none; border-radius: 6px;
+      font-size: .95rem; font-weight: 600;
+      cursor: pointer;
+      background: var(--accent); color: #fff;
+      transition: opacity .18s;
+    }
+    .btn:hover { opacity: .85; }
+    .error-msg {
+      background: #2a1f1f;
+      border: 1px solid var(--danger);
+      border-radius: 6px;
+      color: #f85149;
+      padding: 10px 14px;
+      font-size: .85rem;
+      margin-bottom: 18px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <h1><span>Bot</span>Panel</h1>
+    <p class="subtitle">Sign in to access the dashboard</p>
+    <div class="error-msg" id="error-msg">Invalid username or password.</div>
+    <form method="POST" action="/api/auth/login">
+      <div class="field">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required autocomplete="username" autofocus/>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password"/>
+      </div>
+      <button type="submit" class="btn">Sign In</button>
+    </form>
+  </div>
+  <script>
+    if (new URLSearchParams(location.search).has('error')) {
+      document.getElementById('error-msg').classList.add('show');
+    }
+  </script>
+</body>
+</html>
