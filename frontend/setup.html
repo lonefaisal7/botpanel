@@ -6,31 +6,126 @@
   <title>Setup — Bot Hosting Panel</title>
   <style>
     :root {
-      --bg:      #0d1117;
-      --surface: #161b22;
-      --border:  #30363d;
-      --accent:  #238636;
-      --accent2: #1f6feb;
-      --danger:  #da3633;
-      --text:    #e6edf3;
-      --muted:   #8b949e;
-      --radius:  8px;
+      --bg:      #070b13;
+      --surface: rgba(17, 25, 40, 0.74);
+      --surface-2: rgba(23, 34, 60, 0.72);
+      --border:  rgba(129, 193, 255, 0.25);
+      --accent:  #5cc4ff;
+      --accent2: #7a6aff;
+      --danger:  #ff5f7a;
+      --text:    #edf3ff;
+      --muted:   #9ab1cc;
+      --radius:  14px;
+      --shadow:  0 14px 40px rgba(0,0,0,.35);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: var(--bg); color: var(--text);
-      font-family: 'Segoe UI', system-ui, sans-serif;
       min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 20% 30%, #1f3e70 0%, #070b13 45%, #02040a 100%);
+      overflow: hidden;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(110deg, rgba(92,196,255,.12), rgba(122,106,255,.08));
+      filter: blur(44px);
+      pointer-events: none;
+      z-index: -2;
     }
     .setup-card {
+      position: relative;
+      width: min(460px, 94vw);
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 40px 36px;
-      width: min(420px, 92vw);
+      padding: 36px 32px 30px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      animation: floatUp 0.8s ease-out both;
+      overflow: hidden;
     }
+    .setup-card::before,
+    .setup-card::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(28px);
+      opacity: .35;
+      pointer-events: none;
+      animation: pulse 4s ease-in-out infinite;
+    }
+    .setup-card::before { width: 220px; height: 220px; top: -70px; right: -70px; background: radial-gradient(circle, rgba(92,196,255,.42), transparent 55%); }
+    .setup-card::after { width: 200px; height: 200px; left: -80px; bottom: -70px; background: radial-gradient(circle, rgba(122,106,255,.34), transparent 70%); }
+    @keyframes floatUp {
+      from { transform: translateY(18px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes pulse { 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.06); }}
+    .setup-card h1 {
+      font-size: 1.65rem; font-weight: 800;
+      margin-bottom: 6px; text-align: center;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: #f5f9ff;
+      text-shadow: 0 3px 10px rgba(30, 55, 95, .7);
+    }
+    .setup-card h1 span { color: var(--accent); }
+    .setup-card .subtitle {
+      color: var(--muted); font-size: .9rem;
+      text-align: center; margin-bottom: 26px;
+    }
+    .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .field label { font-size: .8rem; color: var(--muted); letter-spacing: .2px; }
+    .field input {
+      background: rgba(7, 14, 26, .82);
+      border: 1px solid rgba(152, 206, 255, .25);
+      border-left: 3px solid transparent;
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: .95rem;
+      outline: none;
+      transition: border-color .25s ease, transform .15s ease, box-shadow .22s ease;
+    }
+    .field input:focus {
+      border-color: rgba(92,196,255,.72);
+      border-left-color: var(--accent);
+      box-shadow: 0 0 18px rgba(92,196,255,.28);
+      transform: translateY(-1px);
+    }
+    .btn {
+      width: 100%; padding: 13px 16px; border: none; border-radius: 10px;
+      font-size: .95rem; font-weight: 700; letter-spacing: .4px;
+      color: #fff; cursor: pointer;
+      background-image: linear-gradient(120deg, #4fd8ff 0%, #5c8eff 34%, #8f6eff 100%);
+      box-shadow: 0 12px 30px rgba(33, 48, 90, .4);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 16px 34px rgba(33,48,90,.55); }
+    .btn:active { transform: translateY(1px); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .error-msg {
+      background: rgba(255, 95, 122, .14);
+      border: 1px solid rgba(255, 95, 122, .28);
+      border-radius: 8px;
+      color: #ff8aa2;
+      padding: 10px 14px;
+      font-size: .86rem;
+      margin-bottom: 18px;
+      display: none;
+      animation: fadeIn .3s ease forwards;
+    }
+    .error-msg.show { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .footer { margin-top: 28px; text-align: center; color: var(--muted); font-size: .78rem; line-height: 1.7; }
+    .footer a { color: #8db8ff; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    .footer .heart { color: #ff6f88; }
+  </style>
     .setup-card h1 {
       font-size: 1.4rem; font-weight: 700;
       margin-bottom: 8px; text-align: center;
@@ -97,7 +192,7 @@
 </head>
 <body>
   <div class="setup-card">
-    <h1><span>Bot</span>Panel</h1>
+    <h1><span class="brand-icon" aria-hidden="true">&#x1F916;</span> <span>Bot</span>Panel</h1>
     <p class="subtitle">Create your admin account to get started</p>
     <div class="error-msg" id="error-msg"></div>
     <form id="setup-form">
