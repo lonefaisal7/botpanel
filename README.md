@@ -39,38 +39,7 @@ After install, open **http://YOUR\_VPS\_IP:8000** in your browser. On first visi
 ---
 
 
-## 📁 Project Structure
 
-```
-botpanel/
-├── app/
-│   ├── main.py               ← FastAPI app entry point
-│   ├── auth.py               ← JWT authentication (bcrypt + python-jose)
-│   ├── models/bot.py         ← SQLAlchemy models + SQLite engine
-│   ├── routes/
-│   │   ├── bots.py           ← Bot API route definitions
-│   │   └── auth.py           ← Login / logout routes
-│   └── services/
-│       ├── bot_service.py    ← Upload, start, stop, delete logic
-│       └── docker_service.py ← Docker SDK wrapper
-├── frontend/
-│   ├── index.html            ← Full SPA dashboard (vanilla JS)
-│   └── login.html            ← Login page
-├── bots/                     ← Bot source files (per bot_id folder)
-├── uploads/                  ← Temporary upload staging
-├── .env                      ← Admin credentials + secret key (auto-generated)
-├── .env.example              ← Template for .env
-├── requirements.txt
-├── botpanel.service          ← Systemd unit file
-├── setup.sh                  ← One-command VPS installer
-├── update.sh                 ← One-command updater
-├── uninstall.sh              ← Clean uninstaller
-├── set_password.py           ← Admin password utility
-├── run.sh                    ← Start the server manually
-└── README.md
-```
-
----
 
 ## 🔌 API Endpoints
 
