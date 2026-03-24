@@ -38,21 +38,6 @@ After install, open **http://YOUR\_VPS\_IP:8000** in your browser. On first visi
 
 ---
 
-## 🛠 Manual Install
-
-```bash
-git clone https://github.com/lonefaisal7/botpanel
-cd botpanel
-python3 -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-chmod +x run.sh
-./run.sh
-# Open http://localhost:8000 — create your admin account on first visit
-```
-
-To pre-configure credentials (e.g. CI/scripts) you can still run `python3 set_password.py` before starting the server.
-
----
 
 ## 📁 Project Structure
 
