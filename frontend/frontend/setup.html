@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Setup — Bot Hosting Panel</title>
+  <style>
+    :root {
+      --bg:      #0d1117;
+      --surface: #161b22;
+      --border:  #30363d;
+      --accent:  #238636;
+      --accent2: #1f6feb;
+      --danger:  #da3633;
+      --text:    #e6edf3;
+      --muted:   #8b949e;
+      --radius:  8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .setup-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px 36px;
+      width: min(420px, 92vw);
+    }
+    .setup-card h1 {
+      font-size: 1.4rem; font-weight: 700;
+      margin-bottom: 8px; text-align: center;
+    }
+    .setup-card h1 span { color: #58a6ff; }
+    .setup-card .subtitle {
+      color: var(--muted); font-size: .85rem;
+      text-align: center; margin-bottom: 28px;
+    }
+    .field {
+      display: flex; flex-direction: column; gap: 6px;
+      margin-bottom: 18px;
+    }
+    .field label { font-size: .85rem; color: var(--muted); }
+    .field input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 10px 14px;
+      font-size: .95rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .field input:focus { border-color: #58a6ff; }
+    .btn {
+      display: block; width: 100%;
+      padding: 11px 16px;
+      border: none; border-radius: 6px;
+      font-size: .95rem; font-weight: 600;
+      cursor: pointer;
+      background: var(--accent); color: #fff;
+      transition: opacity .18s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .error-msg {
+      background: #2a1f1f;
+      border: 1px solid var(--danger);
+      border-radius: 6px;
+      color: #f85149;
+      padding: 10px 14px;
+      font-size: .85rem;
+      margin-bottom: 18px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    .footer {
+      margin-top: 32px;
+      text-align: center;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.7;
+    }
+    .footer a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+    .footer a:hover { text-decoration: underline; }
+    .footer .heart { color: #da3633; }
+  </style>
+</head>
+<body>
+  <div class="setup-card">
+    <h1><span>Bot</span>Panel</h1>
+    <p class="subtitle">Create your admin account to get started</p>
+    <div class="error-msg" id="error-msg"></div>
+    <form id="setup-form">
+      <div class="field">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required autocomplete="username" autofocus/>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="new-password" minlength="4"/>
+      </div>
+      <div class="field">
+        <label for="confirm_password">Confirm Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" required autocomplete="new-password" minlength="4"/>
+      </div>
+      <button type="submit" class="btn" id="submit-btn">Create Account</button>
+    </form>
+  </div>
+
+  <div class="footer">
+    Made with <span class="heart">&hearts;</span> by
+    <a href="https://t.me/lonefaisal" target="_blank">LONE FAISAL</a> &amp;
+    <a href="https://t.me/trueprofessor" target="_blank">Professor</a><br/>
+    ✦ <a href="https://t.me/arrow_network" target="_blank">Arrow Network</a> &nbsp;
+    ✦ <a href="https://t.me/kmri_network_reborn" target="_blank">KMRI Network</a>
+  </div>
+
+  <script>
+    // If credentials already exist, redirect to login
+    fetch('/api/auth/setup-status')
+      .then(r => r.json())
+      .then(data => {
+        if (data.configured) window.location.href = '/login';
+      })
+      .catch(() => {});
+
+    document.getElementById('setup-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('error-msg');
+      const btn = document.getElementById('submit-btn');
+      errEl.classList.remove('show');
+
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm_password').value;
+
+      if (password !== confirm) {
+        errEl.textContent = 'Passwords do not match.';
+        errEl.classList.add('show');
+        return;
+      }
+      if (password.length < 4) {
+        errEl.textContent = 'Password must be at least 4 characters.';
+        errEl.classList.add('show');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Creating account…';
+
+      const fd = new FormData(e.target);
+      try {
+        const res = await fetch('/api/auth/setup', {
+          method: 'POST',
+          body: fd,
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          errEl.textContent = data.detail || 'Setup failed.';
+          errEl.classList.add('show');
+          btn.disabled = false;
+          btn.textContent = 'Create Account';
+          return;
+        }
+        localStorage.setItem('token', data.access_token);
+        window.location.href = '/';
+      } catch (err) {
+        errEl.textContent = 'Network error. Please try again.';
+        errEl.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+      }
+    };
+  </script>
+</body>
+</html>
