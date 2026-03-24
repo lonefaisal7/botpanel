@@ -6,31 +6,80 @@
   <title>Login — Bot Hosting Panel</title>
   <style>
     :root {
-      --bg:      #0d1117;
-      --surface: #161b22;
-      --border:  #30363d;
-      --accent:  #238636;
-      --accent2: #1f6feb;
-      --danger:  #da3633;
-      --text:    #e6edf3;
-      --muted:   #8b949e;
-      --radius:  8px;
+      --bg:      #060a13;
+      --surface: rgba(18, 30, 54, 0.76);
+      --border:  rgba(129, 193, 255, 0.24);
+      --accent:  #6ef2ff;
+      --accent2: #8f77ff;
+      --danger:  #ff6c70;
+      --text:    #f0f6ff;
+      --muted:   #a7b8d3;
+      --radius:  12px;
+      --shadow:  0 18px 42px rgba(0,0,0,.4);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: var(--bg); color: var(--text);
-      font-family: 'Segoe UI', system-ui, sans-serif;
       min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
+      background: radial-gradient(circle at 80% 10%, #2f4a7e 0%, #060a13 50%, #02040a 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--text);
+      position: relative;
+      overflow: hidden;
+    }
+    body::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(111, 242, 255, .1), rgba(143, 119, 255, .08));
+      filter: blur(40px);
+      pointer-events: none;
+      z-index: -2;
     }
     .login-card {
+      position: relative;
+      width: min(460px, 94vw);
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 40px 36px;
-      width: min(400px, 92vw);
+      padding: 36px 30px 30px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      animation: floatUp 0.85s ease-out both;
+      overflow: hidden;
     }
+    .login-card::before, .login-card::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(26px);
+      opacity: .38;
+      pointer-events: none;
+      animation: pulse 4.5s ease-in-out infinite;
+    }
+    .login-card::before { width: 210px; height: 210px; top: -68px; right: -70px; background: radial-gradient(circle, rgba(110,242,255,.48), transparent 55%); }
+    .login-card::after { width: 190px; height: 190px; left: -65px; bottom: -72px; background: radial-gradient(circle, rgba(143,119,255,.40), transparent 70%); }
+    @keyframes floatUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes pulse { 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.07); }}
+
+    .login-card h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 6px; text-align: center; color: #f5faff; }
+    .login-card h1 span { color: var(--accent); }
+    .login-card .subtitle { color: var(--muted); font-size: .9rem; text-align: center; margin-bottom: 26px; }
+    .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .field label { font-size: .8rem; color: var(--muted); letter-spacing: .2px; }
+    .field input { background: rgba(7, 14, 26, .82); border: 1px solid rgba(152, 206, 255, .25); border-left: 3px solid transparent; border-radius: 10px; color: var(--text); padding: 12px 14px; font-size: .95rem; outline: none; transition: border-color .25s ease, transform .15s ease, box-shadow .22s ease; }
+    .field input:focus { border-color: rgba(110,242,255,.70); border-left-color: var(--accent); box-shadow: 0 0 18px rgba(110,242,255,.24); transform: translateY(-1px); }
+    .btn { width: 100%; padding: 13px 16px; border: none; border-radius: 10px; font-size: .95rem; font-weight: 700; letter-spacing: .4px; color: #fff; cursor: pointer; background-image: linear-gradient(120deg, #4fd8ff 0%, #5c8eff 35%, #8f6eff 100%); box-shadow: 0 12px 30px rgba(12, 32, 72, .42); transition: transform .2s ease, box-shadow .2s ease; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 16px 34px rgba(12,32,72,.55); }
+    .btn:active { transform: translateY(1px); }
+    .error-msg { background: rgba(255, 108, 112, .14); border: 1px solid rgba(255, 108, 112, .28); border-radius: 8px; color: #ff8aa2; padding: 10px 14px; font-size: .86rem; margin-bottom: 18px; display: none; animation: fadeIn .32s ease forwards; }
+    .error-msg.show { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .footer { margin-top: 28px; text-align: center; color: var(--muted); font-size: .78rem; line-height: 1.7; }
+    .footer a { color: #8db8ff; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    .footer .heart { color: #ff677b; }
+  </style>
     .login-card h1 {
       font-size: 1.4rem; font-weight: 700;
       margin-bottom: 8px; text-align: center;
@@ -96,7 +145,7 @@
 </head>
 <body>
   <div class="login-card">
-    <h1><span>Bot</span>Panel</h1>
+    <h1><span class="brand-icon" aria-hidden="true">&#x1F916;</span> <span>Bot</span>Panel</h1>
     <p class="subtitle">Sign in to access the dashboard</p>
     <div class="error-msg" id="error-msg">Invalid username or password.</div>
     <form id="login-form">
