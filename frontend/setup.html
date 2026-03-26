@@ -1,143 +1,408 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Setup — Bot Hosting Panel</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setup - Bot Hosting Panel</title>
   <style>
     :root {
-      --bg:      #0d1117;
-      --surface: #161b22;
-      --border:  #30363d;
-      --accent:  #238636;
-      --accent2: #1f6feb;
-      --danger:  #da3633;
-      --text:    #e6edf3;
-      --muted:   #8b949e;
-      --radius:  8px;
+      --bg: #070b14;
+      --surface: rgba(10, 17, 31, 0.8);
+      --border: rgba(136, 171, 228, 0.22);
+      --text: #e7efff;
+      --muted: #9bb0d5;
+      --accent: #16b16d;
+      --danger: #f4516c;
+      --shadow: 0 22px 55px rgba(3, 7, 16, 0.55);
+      --radius: 18px;
+      --font-main: "Manrope", "Avenir Next", "Segoe UI", sans-serif;
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    * { box-sizing: border-box; }
+
+    html,
     body {
-      background: var(--bg); color: var(--text);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
+      margin: 0;
+      min-height: 100%;
+      font-family: var(--font-main);
+      color: var(--text);
+      background:
+        radial-gradient(58rem 34rem at 15% -10%, rgba(47, 136, 255, 0.24), transparent 62%),
+        radial-gradient(48rem 34rem at 95% 105%, rgba(22, 177, 109, 0.21), transparent 58%),
+        linear-gradient(160deg, #060a12 0%, #081124 45%, #070b14 100%);
     }
-    .setup-card {
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      overflow-x: hidden;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -1000px 0; }
+      100% { background-position: 1000px 0; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .shell {
+      width: min(500px, 100%);
+      animation: slideInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 40px 36px;
-      width: min(420px, 92vw);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      padding: 1.4rem;
+      transition: all 0.3s ease;
     }
-    .setup-card h1 {
-      font-size: 1.4rem; font-weight: 700;
-      margin-bottom: 8px; text-align: center;
+
+    .card:hover {
+      border-color: rgba(136, 171, 228, 0.35);
+      box-shadow: 0 22px 65px rgba(47, 136, 255, 0.15);
+      transform: translateY(-2px);
     }
-    .setup-card h1 span { color: #58a6ff; }
-    .setup-card .subtitle {
-      color: var(--muted); font-size: .85rem;
-      text-align: center; margin-bottom: 28px;
+
+    .header {
+      text-align: center;
+      margin-bottom: 1.1rem;
     }
-    .field {
-      display: flex; flex-direction: column; gap: 6px;
-      margin-bottom: 18px;
+
+    .header h1 {
+      margin: 0;
+      font-size: clamp(1.25rem, 2.8vw, 1.65rem);
+      letter-spacing: 0.01em;
     }
-    .field label { font-size: .85rem; color: var(--muted); }
-    .field input {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      padding: 10px 14px;
-      font-size: .95rem;
-      outline: none;
-      transition: border-color .2s;
+
+    .header h1 span { color: #7cb8ff; }
+
+    .header p {
+      margin: 0.42rem 0 0;
+      font-size: 0.88rem;
+      color: var(--muted);
     }
-    .field input:focus { border-color: #58a6ff; }
-    .btn {
-      display: block; width: 100%;
-      padding: 11px 16px;
-      border: none; border-radius: 6px;
-      font-size: .95rem; font-weight: 600;
-      cursor: pointer;
-      background: var(--accent); color: #fff;
-      transition: opacity .18s;
-    }
-    .btn:hover { opacity: .85; }
-    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
     .error-msg {
-      background: #2a1f1f;
-      border: 1px solid var(--danger);
-      border-radius: 6px;
-      color: #f85149;
-      padding: 10px 14px;
-      font-size: .85rem;
-      margin-bottom: 18px;
       display: none;
+      margin-bottom: 0.85rem;
+      border: 1px solid rgba(244, 81, 108, 0.6);
+      background: rgba(244, 81, 108, 0.14);
+      color: #ffb1be;
+      border-radius: 11px;
+      padding: 0.62rem 0.74rem;
+      font-size: 0.82rem;
     }
+
     .error-msg.show { display: block; }
 
-    /* ── FOOTER ──────────────────────────────────────────────── */
+    form {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .field {
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .field label {
+      color: #a2b6d9;
+      font-size: 0.79rem;
+      letter-spacing: 0.02em;
+    }
+
+    .field input {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(136, 171, 228, 0.24);
+      background: rgba(6, 10, 19, 0.88);
+      color: var(--text);
+      padding: 0.68rem 0.8rem;
+      font: inherit;
+      outline: 0;
+      transition: all 0.25s ease;
+    }
+
+    .field input:focus {
+      border-color: rgba(124, 184, 255, 0.95);
+      box-shadow: 0 0 0 3px rgba(47, 136, 255, 0.2), inset 0 0 0 1px rgba(113, 179, 255, 0.3);
+      background: rgba(8, 14, 28, 0.95);
+      transform: scale(1.01);
+    }
+
+    .btn {
+      margin-top: 0.2rem;
+      border: 0;
+      border-radius: 12px;
+      padding: 0.72rem 0.92rem;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #f7fbff;
+      background: linear-gradient(120deg, #14a766, #16b16d);
+      box-shadow: 0 12px 26px rgba(20, 184, 111, 0.32);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:active::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .btn:hover:not(:disabled) {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+      box-shadow: 0 16px 35px rgba(20, 184, 111, 0.4);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.64;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .footer {
-      margin-top: 32px;
+      margin-top: 0.85rem;
       text-align: center;
-      color: var(--muted);
-      font-size: .78rem;
+      color: #8ea4ca;
+      font-size: 0.75rem;
       line-height: 1.7;
     }
-    .footer a {
-      color: #58a6ff;
-      text-decoration: none;
-    }
+
+    .footer a { color: #8bc0ff; text-decoration: none; }
     .footer a:hover { text-decoration: underline; }
-    .footer .heart { color: #da3633; }
+
+    @media (max-width: 640px) {
+      .shell {
+        width: min(calc(100% - 1rem), 100%);
+        animation: slideInUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      }
+
+      .card { 
+        padding: 1.2rem; 
+        border-radius: 14px;
+      }
+
+      .header {
+        margin-bottom: 1rem;
+      }
+
+      .header h1 {
+        font-size: clamp(1rem, 2.5vw, 1.5rem);
+      }
+
+      .header p {
+        font-size: 0.82rem;
+      }
+
+      .field {
+        gap: 0.32rem;
+      }
+
+      .field label {
+        font-size: 0.75rem;
+      }
+
+      .field input {
+        padding: 0.65rem 0.75rem;
+        font-size: 0.95rem;
+        border-radius: 11px;
+      }
+
+      form {
+        gap: 0.75rem;
+      }
+
+      .btn {
+        padding: 0.65rem 0.85rem;
+        font-size: 0.85rem;
+        border-radius: 11px;
+      }
+
+      .error-msg {
+        font-size: 0.78rem;
+        padding: 0.6rem 0.7rem;
+        border-radius: 10px;
+      }
+
+      .footer { 
+        font-size: 0.68rem; 
+        margin-top: 1rem;
+        line-height: 1.6;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .shell {
+        width: calc(100% - 0.8rem);
+      }
+
+      .card { 
+        padding: 1rem; 
+        border-radius: 12px;
+      }
+
+      .header {
+        margin-bottom: 0.9rem;
+      }
+
+      .header h1 {
+        font-size: 1.2rem;
+      }
+
+      .header p {
+        font-size: 0.78rem;
+        margin-top: 0.35rem;
+      }
+
+      .field {
+        gap: 0.28rem;
+      }
+
+      .field label {
+        font-size: 0.7rem;
+      }
+
+      .field input {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.9rem;
+        border-radius: 10px;
+      }
+
+      form {
+        gap: 0.65rem;
+      }
+
+      .btn {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.8rem;
+        border-radius: 10px;
+        margin-top: 0.1rem;
+      }
+
+      .error-msg {
+        font-size: 0.75rem;
+        padding: 0.55rem 0.65rem;
+        border-radius: 10px;
+        margin-bottom: 0.7rem;
+      }
+
+      .footer { 
+        font-size: 0.65rem; 
+        margin-top: 0.8rem;
+        line-height: 1.5;
+      }
+
+      .footer a {
+        display: inline;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="setup-card">
-    <h1><span>Bot</span>Panel</h1>
-    <p class="subtitle">Create your admin account to get started</p>
-    <div class="error-msg" id="error-msg"></div>
-    <form id="setup-form">
-      <div class="field">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required autocomplete="username" autofocus/>
+  <div class="shell">
+    <div class="card">
+      <div class="header">
+        <h1><span>Bot</span>Panel</h1>
+        <p>Create your admin account to get started.</p>
       </div>
-      <div class="field">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required autocomplete="new-password" minlength="4"/>
-      </div>
-      <div class="field">
-        <label for="confirm_password">Confirm Password</label>
-        <input type="password" id="confirm_password" name="confirm_password" required autocomplete="new-password" minlength="4"/>
-      </div>
-      <button type="submit" class="btn" id="submit-btn">Create Account</button>
-    </form>
-  </div>
 
-  <div class="footer">
-    Made with <span class="heart">&hearts;</span> by
-    <a href="https://t.me/lonefaisal" target="_blank">LONE FAISAL</a> &amp;
-    <a href="https://t.me/trueprofessor" target="_blank">Professor</a><br/>
-    ✦ <a href="https://t.me/arrow_network" target="_blank">Arrow Network</a> &nbsp;
-    ✦ <a href="https://t.me/kmri_network_reborn" target="_blank">KMRI Network</a>
+      <div class="error-msg" id="error-msg" aria-live="polite"></div>
+
+      <form id="setup-form">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required autocomplete="username" autofocus />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required autocomplete="new-password" minlength="4" />
+        </div>
+        <div class="field">
+          <label for="confirm_password">Confirm Password</label>
+          <input type="password" id="confirm_password" name="confirm_password" required autocomplete="new-password" minlength="4" />
+        </div>
+        <button type="submit" class="btn" id="submit-btn">Create Account</button>
+      </form>
+    </div>
+
+    <div class="footer">
+      Made with love by
+      <a href="https://t.me/lonefaisal" target="_blank" rel="noopener">LONE FAISAL</a>
+      and
+      <a href="https://t.me/trueprofessor" target="_blank" rel="noopener">Professor</a><br />
+      <a href="https://t.me/arrow_network" target="_blank" rel="noopener">Arrow Network</a>
+      |
+      <a href="https://t.me/kmri_network_reborn" target="_blank" rel="noopener">KMRI Network</a>
+    </div>
   </div>
 
   <script>
-    // If credentials already exist, redirect to login
     fetch('/api/auth/setup-status')
-      .then(r => r.json())
-      .then(data => {
+      .then((r) => r.json())
+      .then((data) => {
         if (data.configured) window.location.href = '/login';
       })
       .catch(() => {});
 
-    document.getElementById('setup-form').onsubmit = async (e) => {
+    const form = document.getElementById('setup-form');
+    const errEl = document.getElementById('error-msg');
+    const btn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const errEl = document.getElementById('error-msg');
-      const btn = document.getElementById('submit-btn');
       errEl.classList.remove('show');
 
       const password = document.getElementById('password').value;
@@ -148,6 +413,7 @@
         errEl.classList.add('show');
         return;
       }
+
       if (password.length < 4) {
         errEl.textContent = 'Password must be at least 4 characters.';
         errEl.classList.add('show');
@@ -155,31 +421,34 @@
       }
 
       btn.disabled = true;
-      btn.textContent = 'Creating account…';
+      btn.textContent = 'Creating account...';
 
-      const fd = new FormData(e.target);
+      const fd = new FormData(form);
+
       try {
         const res = await fetch('/api/auth/setup', {
           method: 'POST',
-          body: fd,
+          body: fd
         });
-        const data = await res.json();
+
+        const data = await res.json().catch(() => ({}));
+
         if (!res.ok) {
           errEl.textContent = data.detail || 'Setup failed.';
           errEl.classList.add('show');
-          btn.disabled = false;
-          btn.textContent = 'Create Account';
           return;
         }
+
         localStorage.setItem('token', data.access_token);
         window.location.href = '/';
-      } catch (err) {
+      } catch (_err) {
         errEl.textContent = 'Network error. Please try again.';
         errEl.classList.add('show');
+      } finally {
         btn.disabled = false;
         btn.textContent = 'Create Account';
       }
-    };
+    });
   </script>
 </body>
 </html>
