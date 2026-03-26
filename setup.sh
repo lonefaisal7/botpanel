@@ -116,22 +116,13 @@ if command -v ufw &>/dev/null; then
 fi
 
 # ── Done ─────────────────────────────────────────────────────────────────────
-# Prefer public IP for VPS deploy, fallback to local host interface if unavailable
 SERVER_IP=$(hostname -I | awk '{print $1}')
-PUBLIC_IP=$(curl -sS --max-time 5 https://ifconfig.me || true)
-if [ -n "$PUBLIC_IP" ]; then
-  # ifconfig.me might return empty or an error, so keep fallback
-  IP_ADDRESS=$PUBLIC_IP
-else
-  IP_ADDRESS=$SERVER_IP
-fi
-
 echo ""
 echo -e "${GREEN}╔══════════════════════════════════════════════════════════╗${NC}"
 echo -e "${GREEN}║   ✅  Bot Hosting Panel is LIVE!                         ║${NC}"
 echo -e "${GREEN}╠══════════════════════════════════════════════════════════╣${NC}"
-echo -e "${GREEN}║  🌐  Dashboard  →  http://${IP_ADDRESS}:8000               ${NC}"
-echo -e "${GREEN}║  📖  API Docs   →  http://${IP_ADDRESS}:8000/docs          ${NC}"
+echo -e "${GREEN}║  🌐  Dashboard  →  http://${SERVER_IP}:8000               ${NC}"
+echo -e "${GREEN}║  📖  API Docs   →  http://${SERVER_IP}:8000/docs          ${NC}"
 echo -e "${GREEN}║  📋  Logs       →  journalctl -u botpanel -f              ║${NC}"
 echo -e "${GREEN}║  ⏹   Stop       →  systemctl stop botpanel               ║${NC}"
 echo -e "${GREEN}║  🔄  Restart    →  systemctl restart botpanel            ║${NC}"
