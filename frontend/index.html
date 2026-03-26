@@ -1,1387 +1,560 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Bot Hosting Panel</title>
   <style>
     :root {
-      --bg: #070b14;
-      --bg-soft: #0d1628;
-      --surface: rgba(13, 22, 40, 0.76);
-      --surface-strong: rgba(10, 17, 31, 0.92);
-      --border: rgba(108, 157, 235, 0.2);
-      --text: #e8f0ff;
-      --muted: #0441b2;
-      --accent: #16e789;
-      --accent-2: #036af0;
-      --danger: #f4516c;
-      --warn: #f8950b;
-      --radius: 16px;
-      --shadow: 0 18px 45px rgba(2, 6, 15, 0.5);
-      --font-main: "Manrope", "Avenir Next", "Segoe UI", sans-serif;
-      --font-mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      --bg:      #0d1117;
+      --surface: #161b22;
+      --border:  #30363d;
+      --accent:  #238636;
+      --accent2: #1f6feb;
+      --danger:  #da3633;
+      --warn:    #d29922;
+      --text:    #e6edf3;
+      --muted:   #8b949e;
+      --radius:  8px;
     }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
 
-    * { box-sizing: border-box; }
-
-    html,
-    body {
-      margin: 0;
-      min-height: 100%;
-      color: var(--text);
-      background:
-        radial-gradient(70rem 45rem at -10% -15%, rgba(47, 136, 255, 0.24), transparent 62%),
-        radial-gradient(55rem 36rem at 110% -10%, rgba(20, 184, 111, 0.2), transparent 58%),
-        linear-gradient(160deg, #060a12 0%, #081124 40%, #070b14 100%);
-      font-family: var(--font-main);
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-    }
-
-    body {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
-    }
-
-    body::before,
-    body::after {
-      content: "";
-      position: fixed;
-      inset: auto;
-      width: 28rem;
-      height: 28rem;
-      border-radius: 999px;
-      filter: blur(38px);
-      opacity: 0.25;
-      pointer-events: none;
-      z-index: -1;
-      animation: drift 16s ease-in-out infinite;
-    }
-
-    body::before {
-      top: 8%;
-      left: -9rem;
-      background: #2f88ff;
-    }
-
-    body::after {
-      bottom: -9rem;
-      right: -8rem;
-      background: #14b86f;
-      animation-delay: -8s;
-    }
-
-    @keyframes drift {
-      0%, 100% { transform: translateY(0) translateX(0) scale(1); }
-      50% { transform: translateY(-1.5rem) translateX(1.1rem) scale(1.06); }
-    }
-
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes slideInDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes slideInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes slideInLeft {
-      from { opacity: 0; transform: translateX(-20px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    @keyframes scaleIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    @keyframes shimmer {
-      0% { background-position: -1000px 0; }
-      100% { background-position: 1000px 0; }
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-8px); }
-    }
-
-    @keyframes glow {
-      0%, 100% { box-shadow: 0 0 20px rgba(22, 232, 137, 0), var(--shadow); }
-      50% { box-shadow: 0 0 30px rgba(22, 232, 137, 0.3), var(--shadow); }
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-    }
-
-    .shell {
-      width: min(1200px, calc(100% - 2rem));
-      margin: 0 auto;
-    }
-
+    /* ── NAV ─────────────────────────────────────────────── */
     nav {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      backdrop-filter: blur(10px);
-      background: rgba(7, 11, 20, 0.68);
-      border-bottom: 1px solid rgba(136, 171, 228, 0.15);
-    }
-
-    .nav-inner {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
       display: flex;
       align-items: center;
-      gap: 1rem;
-      min-height: 4.25rem;
+      gap: 12px;
     }
-
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 0.1rem;
-      line-height: 1;
+    nav .logo { font-size: 1.35rem; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+    nav .logo span { color: #58a6ff; }
+    nav .tagline { color: var(--muted); font-size: 0.82rem; margin-left: auto; }
+    nav .logout-btn {
+      background: #21262d; border: 1px solid var(--border); color: var(--text);
+      padding: 6px 14px; border-radius: 6px; font-size: .82rem; cursor: pointer;
+      margin-left: 12px; transition: opacity .18s;
     }
+    nav .logout-btn:hover { opacity: .7; }
 
-    .brand-title {
-      font-size: 1.1rem;
-      font-weight: 800;
-      letter-spacing: 0.02em;
-    }
+    /* ── MAIN ────────────────────────────────────────────── */
+    main { max-width: 1100px; margin: 0 auto; padding: 32px 20px; flex: 1; }
 
-    .brand-title span { color: #71b3ff; }
-
-    .brand-sub {
-      color: var(--muted);
-      font-size: 0.78rem;
-      letter-spacing: 0.02em;
-    }
-
-    .nav-spacer { margin-left: auto; }
-
-    main {
-      width: min(1200px, calc(100% - 2rem));
-      margin: 1.4rem auto 2rem;
-      flex: 1;
-      display: grid;
-      gap: 1rem;
-    }
-
-    .hero {
-      border: 1px solid var(--border);
-      background: linear-gradient(145deg, rgba(21, 34, 58, 0.74), rgba(12, 20, 38, 0.78));
-      border-radius: calc(var(--radius) + 2px);
-      box-shadow: var(--shadow);
-      padding: 1.25rem 1.25rem 1.1rem;
-      animation: slideInDown 0.6s ease both;
-      transition: all 0.3s ease;
-    }
-
-    .hero:hover {
-      border-color: rgba(108, 157, 235, 0.4);
-      box-shadow: 0 18px 50px rgba(47, 136, 255, 0.15);
-    }
-
-    .hero h1 {
-      margin: 0;
-      font-size: clamp(1.2rem, 2vw, 1.75rem);
-      line-height: 1.2;
-    }
-
-    .hero p {
-      margin: 0.45rem 0 0;
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-
-    .stats-grid {
-      display: grid;
-      gap: 0.85rem;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      margin-top: 1rem;
-    }
-
-    .stat-pill {
-      border-radius: 14px;
-      padding: 0.85rem 0.95rem;
-      background: rgba(8, 14, 27, 0.72);
-      border: 1px solid rgba(136, 171, 228, 0.18);
-      min-height: 4.6rem;
-      display: grid;
-      align-content: center;
-      gap: 0.32rem;
-      animation: slideInUp 0.5s ease both;
-      transition: all 0.3s ease;
-      cursor: default;
-    }
-
-    .stat-pill:nth-child(1) { animation-delay: 0.05s; }
-    .stat-pill:nth-child(2) { animation-delay: 0.1s; }
-    .stat-pill:nth-child(3) { animation-delay: 0.15s; }
-    .stat-pill:nth-child(4) { animation-delay: 0.2s; }
-
-    .stat-pill:hover {
-      border-color: rgba(136, 171, 228, 0.4);
-      background: rgba(12, 20, 35, 0.85);
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(47, 136, 255, 0.15);
-    }
-
-    .stat-pill label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #8fa6ca;
-    }
-
-    .stat-pill strong {
-      font-size: 1.24rem;
-      font-weight: 800;
-      color: var(--text);
-    }
-
-    .status-online { color: #6bd9a9; }
-
+    /* ── UPLOAD CARD ─────────────────────────────────────── */
     .card {
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      background: var(--surface);
-      box-shadow: var(--shadow);
-      padding: 1.1rem;
-      animation: slideInUp 0.6s ease both;
-      transition: all 0.3s ease;
+      padding: 24px 28px;
+      margin-bottom: 28px;
     }
+    .card h2 { font-size: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 18px; }
 
-    .card:hover {
-      border-color: rgba(108, 157, 235, 0.3);
-      box-shadow: 0 18px 48px rgba(47, 136, 255, 0.12);
-    }
-
-    .card h2 {
-      margin: 0;
-      font-size: 0.84rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #88a1c8;
-    }
-
-    .upload-form {
-      margin-top: 0.9rem;
-      display: grid;
-      gap: 0.75rem;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      align-items: end;
-    }
-
-    .field {
-      display: grid;
-      gap: 0.38rem;
-    }
-
-    .field label {
-      font-size: 0.78rem;
-      color: #9ab0d6;
-    }
-
-    .field input[type="text"],
-    .field input[type="file"] {
-      width: 100%;
-      border-radius: 12px;
-      border: 1px solid rgba(136, 171, 228, 0.2);
-      background: rgba(6, 10, 19, 0.85);
+    .upload-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 200px; }
+    .field label { font-size: .85rem; color: var(--muted); }
+    .field input[type="text"], .field input[type="file"] {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
       color: var(--text);
-      font: inherit;
-      padding: 0.66rem 0.8rem;
-      outline: 0;
-      transition: all 0.25s ease;
+      padding: 9px 13px;
+      font-size: .92rem;
+      outline: none;
+      transition: border-color .2s;
     }
+    .field input:focus { border-color: #58a6ff; }
+    .field input[type="file"] { cursor: pointer; }
 
-    .field input:focus {
-      border-color: rgba(113, 179, 255, 0.9);
-      box-shadow: 0 0 0 3px rgba(47, 136, 255, 0.2), inset 0 0 0 1px rgba(113, 179, 255, 0.3);
-      background: rgba(8, 14, 28, 0.95);
-      transform: scale(1.01);
-    }
-
-    .field-name { grid-column: span 4; }
-    .field-file { grid-column: span 5; }
-    .field-submit { grid-column: span 3; display: grid; }
-
+    /* ── BUTTONS ─────────────────────────────────────────── */
     .btn {
-      border: 0;
-      border-radius: 11px;
-      padding: 0.6rem 0.92rem;
-      font: inherit;
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      will-change: transform;
-      white-space: nowrap;
-      color: #f7fbff;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      transform: translate(-50%, -50%);
-      transition: width 0.6s, height 0.6s;
-    }
-
-    .btn:active::before {
-      width: 300px;
-      height: 300px;
-    }
-
-    .btn:disabled {
-      cursor: not-allowed;
-      opacity: 0.6;
-      transform: none;
-    }
-
-    .btn:hover:not(:disabled) {
-      filter: brightness(1.08);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 28px rgba(22, 232, 137, 0.25);
-    }
-
-    .btn:active:not(:disabled) { transform: translateY(0); }
-
-    .btn-primary {
-      background: linear-gradient(120deg, #16a466, #14b86f);
-      box-shadow: 0 10px 22px rgba(20, 184, 111, 0.32);
-    }
-
-    .btn-blue {
-      background: linear-gradient(120deg, #357bff, #2f88ff);
-      box-shadow: 0 10px 22px rgba(47, 136, 255, 0.28);
-    }
-
-    .btn-warn {
-      color: #1a1308;
-      background: linear-gradient(120deg, #ffc371, #ffb347);
-      box-shadow: 0 10px 22px rgba(255, 179, 71, 0.24);
-    }
-
-    .btn-danger {
-      background: linear-gradient(120deg, #ff6f7e, #f4516c);
-      box-shadow: 0 10px 22px rgba(244, 81, 108, 0.28);
-    }
-
-    .btn-ghost {
-      background: rgba(23, 34, 56, 0.7);
-      border: 1px solid rgba(136, 171, 228, 0.24);
-      color: #d4e4ff;
-      box-shadow: none;
-    }
-
-    .btn-sm {
-      padding: 0.5rem 0.66rem;
-      font-size: 0.74rem;
-      border-radius: 9px;
-    }
-
-    .progress-wrap {
-      display: none;
-      align-items: center;
-      gap: 0.75rem;
-      margin-top: 0.85rem;
-    }
-
-    .progress-wrap.show { display: flex; }
-
-    .progress-bar-bg {
-      height: 8px;
-      flex: 1;
-      border-radius: 999px;
-      overflow: hidden;
-      background: rgba(136, 171, 228, 0.2);
-    }
-
-    .progress-bar-fill {
-      height: 100%;
-      width: 0;
-      border-radius: inherit;
-      background: linear-gradient(90deg, #2f88ff, #14b86f);
-      transition: width 0.28s ease;
-      animation: pulse 1.6s ease-in-out infinite;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .progress-bar-fill::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      right: 0;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      animation: shimmer 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
-
-    .progress-label {
-      color: #9cb0d4;
-      font-size: 0.78rem;
-      min-width: 8.5rem;
-      text-align: right;
-    }
-
-    .table-wrap {
-      margin-top: 0.92rem;
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.88rem;
-      min-width: 740px;
-    }
-
-    thead th {
-      text-align: left;
-      color: #8fa6ca;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-size: 0.71rem;
-      font-weight: 700;
-      padding: 0.72rem 0.6rem;
-      border-bottom: 1px solid rgba(136, 171, 228, 0.2);
-    }
-
-    tbody tr {
-      border-bottom: 1px solid rgba(136, 171, 228, 0.14);
-      animation: slideInLeft 0.5s ease both;
-      transition: all 0.3s ease;
-    }
-
-    tbody tr:nth-child(1) { animation-delay: 0.05s; }
-    tbody tr:nth-child(2) { animation-delay: 0.1s; }
-    tbody tr:nth-child(3) { animation-delay: 0.15s; }
-    tbody tr:nth-child(n+4) { animation-delay: 0.2s; }
-
-    tbody tr:hover {
-      background: rgba(30, 45, 75, 0.8);
-      box-shadow: inset 0 0 15px rgba(47, 136, 255, 0.1);
-      transform: translateX(4px);
-    }
-
-    td {
-      padding: 0.75rem 0.6rem;
-      vertical-align: middle;
-    }
-
-    .entry-file {
-      color: #8bc0ff;
-      font-family: var(--font-mono);
-      font-size: 0.76rem;
-      word-break: break-all;
-    }
-
-    .date-cell {
-      color: #98abd0;
-      font-size: 0.8rem;
-      white-space: nowrap;
-    }
-
-    .actions {
-      display: flex;
-      gap: 0.42rem;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .badge {
       display: inline-flex;
       align-items: center;
-      border-radius: 999px;
-      padding: 0.24rem 0.66rem;
-      font-size: 0.7rem;
+      gap: 6px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .18s, transform .1s;
+      white-space: nowrap;
+    }
+    .btn:hover  { opacity: .85; }
+    .btn:active { transform: scale(.97); }
+    .btn-primary  { background: var(--accent);  color: #fff; }
+    .btn-blue     { background: var(--accent2); color: #fff; }
+    .btn-warn     { background: var(--warn);    color: #000; }
+    .btn-danger   { background: var(--danger);  color: #fff; }
+    .btn-ghost    { background: #21262d;        color: var(--text); border: 1px solid var(--border); }
+    .btn-sm       { padding: 5px 11px; font-size: .78rem; }
+
+    /* ── PROGRESS ────────────────────────────────────────── */
+    .progress-wrap { display: none; align-items: center; gap: 12px; margin-top: 14px; }
+    .progress-wrap.show { display: flex; }
+    .progress-bar-bg {
+      flex: 1; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; width: 0%; background: #58a6ff;
+      border-radius: 99px; transition: width .3s;
+      animation: pulse-bar 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse-bar { 0%,100%{opacity:1} 50%{opacity:.5} }
+    .progress-label { font-size:.8rem; color: var(--muted); }
+
+    /* ── TOAST ───────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1c2128; border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 20px;
+      font-size: .9rem;
+      transform: translateY(80px); opacity: 0;
+      transition: all .3s;
+      z-index: 9999;
+      max-width: 340px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-left: 4px solid var(--accent); }
+    #toast.error   { border-left: 4px solid var(--danger); }
+    #toast.info    { border-left: 4px solid var(--accent2); }
+
+    /* ── TABLE ───────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    thead tr { border-bottom: 2px solid var(--border); }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    tbody tr:hover { background: #1c2128; }
+    th { padding: 11px 14px; text-align: left; color: var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.5px; }
+    td { padding: 13px 14px; vertical-align: middle; }
+
+    .actions { display: flex; gap: 7px; flex-wrap: wrap; }
+
+    /* ── STATUS BADGE ────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: .75rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
-      font-weight: 800;
+      letter-spacing: .4px;
     }
+    .badge-running { background: #1a4731; color: #3fb950; }
+    .badge-stopped { background: #2a1f1f; color: #f85149; }
+    .badge-error   { background: #2d1f1f; color: var(--warn); }
+    .badge-building{ background: #1c2948; color: #58a6ff; }
 
-    .badge-running { color: #59d49e; background: rgba(20, 184, 111, 0.17); }
-    .badge-stopped { color: #f68fa1; background: rgba(244, 81, 108, 0.17); }
-    .badge-error { color: #ffd29b; background: rgba(255, 179, 71, 0.16); }
-    .badge-building { color: #8fc0ff; background: rgba(47, 136, 255, 0.16); }
-
+    /* ── EMPTY STATE ─────────────────────────────────────── */
     .empty-state {
-      text-align: center;
-      padding: 2.5rem 1rem;
-      color: #9bb1d4;
+      text-align: center; padding: 48px 20px; color: var(--muted);
     }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .empty-state p { font-size: .95rem; }
 
-    .empty-state .icon {
-      font-size: 2.1rem;
-      line-height: 1;
-      margin-bottom: 0.58rem;
-      opacity: 0.85;
-    }
-
+    /* ── MODAL ───────────────────────────────────────────── */
     .modal-overlay {
-      position: fixed;
-      inset: 0;
       display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.72);
+      z-index: 1000;
       align-items: center;
       justify-content: center;
-      background: rgba(2, 6, 15, 0.84);
-      z-index: 100;
-      padding: 1rem;
-      animation: fadeIn 0.3s ease forwards;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
     .modal-overlay.open { display: flex; }
-
     .modal {
-      width: min(850px, 96vw);
-      max-height: 88vh;
-      background: var(--surface-strong);
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      overflow: hidden;
-      animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    }
-
-    .modal-header,
-    .modal-footer {
-      padding: 0.85rem 1rem;
-      border-bottom: 1px solid rgba(136, 171, 228, 0.18);
+      width: min(820px, 95vw);
+      max-height: 86vh;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.65rem;
+      flex-direction: column;
     }
-
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-header h3 { font-size: 1rem; }
+    .modal-close {
+      background: none; border: none; color: var(--muted);
+      font-size: 1.4rem; cursor: pointer; line-height: 1;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { padding: 20px 22px; overflow-y: auto; flex: 1; }
+    pre#log-output {
+      background: #010409;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: .8rem;
+      color: #7ee787;
+      white-space: pre-wrap;
+      word-break: break-all;
+      min-height: 200px;
+      max-height: 55vh;
+      overflow-y: auto;
+    }
     .modal-footer {
-      border-bottom: 0;
-      border-top: 1px solid rgba(136, 171, 228, 0.18);
+      padding: 14px 22px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
       justify-content: flex-end;
     }
 
-    .modal-header h3 {
-      margin: 0;
-      font-size: 0.95rem;
-      letter-spacing: 0.02em;
+    /* ── HEADER STATS ─────────────────────────────────────── */
+    .stats-bar {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
     }
-
-    .modal-close {
-      border: 0;
-      background: transparent;
-      color: #c2d3f0;
-      font-size: 1.2rem;
-      cursor: pointer;
-      line-height: 1;
+    .stat-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 18px;
+      font-size: .85rem;
     }
+    .stat-pill span { color: var(--muted); }
+    .stat-pill strong { color: var(--text); margin-left: 6px; }
 
-    .modal-body {
-      padding: 1rem;
-      overflow: auto;
-    }
-
-    pre#log-output {
-      margin: 0;
-      min-height: 220px;
-      max-height: 52vh;
-      border-radius: 12px;
-      border: 1px solid rgba(136, 171, 228, 0.2);
-      background: #040912;
-      color: #7fd7b0;
-      padding: 0.9rem;
-      overflow: auto;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-family: var(--font-mono);
-      font-size: 0.77rem;
-      line-height: 1.4;
-    }
-
-    #toast {
-      position: fixed;
-      right: 1rem;
-      bottom: 1rem;
-      z-index: 120;
-      max-width: min(420px, calc(100% - 2rem));
-      border-radius: 12px;
-      border: 1px solid rgba(136, 171, 228, 0.25);
-      background: rgba(7, 12, 23, 0.95);
-      color: #e6f0ff;
-      padding: 0.82rem 0.9rem;
-      font-size: 0.86rem;
-      box-shadow: var(--shadow);
-      opacity: 0;
-      transform: translateY(100px) scale(0.9);
-      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-      pointer-events: none;
-      backdrop-filter: blur(10px);
-    }
-
-    #toast.show {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      pointer-events: auto;
-    }
-
-    #toast.toast-success { border-left: 4px solid #14b86f; }
-    #toast.toast-error { border-left: 4px solid #f4516c; }
-    #toast.toast-info { border-left: 4px solid #2f88ff; }
-
+    /* ── FOOTER ──────────────────────────────────────────── */
     .footer {
-      width: min(1200px, calc(100% - 2rem));
-      margin: 0 auto 1.2rem;
-      border-top: 1px solid rgba(136, 171, 228, 0.15);
-      padding-top: 0.9rem;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
       text-align: center;
-      color: #90a4ca;
-      font-size: 0.75rem;
-      line-height: 1.7;
+      padding: 20px 16px;
+      color: var(--muted);
+      font-size: .8rem;
+      line-height: 1.8;
     }
-
-    .footer a { color: #8bc0ff; text-decoration: none; }
+    .footer a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
     .footer a:hover { text-decoration: underline; }
+    .footer .heart { color: #da3633; font-size: 1rem; }
+    .footer .channels { margin-top: 4px; }
 
-    @media (max-width: 1024px) {
-      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .field-name { grid-column: span 5; }
-      .field-file { grid-column: span 7; }
-      .field-submit { grid-column: span 12; }
-      .field-submit .btn { width: 100%; }
-      
-      .shell {
-        width: calc(100% - 1.5rem);
-      }
-    }
-
-    @media (max-width: 860px) {
-      .nav-inner {
-        min-height: auto;
-        padding: 0.9rem 0;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 0.8rem;
-      }
-
-      .nav-spacer { display: none; }
-
-      .brand-sub { max-width: 100%; }
-
-      main { margin-top: 1rem; }
-
-      .hero { padding: 1rem; }
-
-      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
-
-      table {
-        min-width: 0;
-        border-collapse: separate;
-        border-spacing: 0 0.6rem;
-      }
-
-      thead { display: none; }
-
-      tbody tr {
-        display: block;
-        border: 1px solid rgba(136, 171, 228, 0.2);
-        background: rgba(9, 15, 28, 0.8);
-        border-radius: 12px;
-        margin-bottom: 0.8rem;
-      }
-
-      td {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.7rem;
-        border-bottom: 1px dashed rgba(136, 171, 228, 0.16);
-        padding: 0.58rem 0.72rem;
-      }
-
-      td:last-child { border-bottom: 0; }
-
-      td::before {
-        content: attr(data-label);
-        color: #8ea6ca;
-        font-size: 0.69rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        flex-shrink: 0;
-        font-weight: 600;
-      }
-
-      .actions {
-        justify-content: flex-end;
-        width: 100%;
-        flex-wrap: wrap;
-      }
-
-      .actions .btn {
-        flex: 1 1 calc(50% - 0.3rem);
-        min-width: 80px;
-        font-size: 0.75rem;
-        padding: 0.5rem 0.6rem;
-      }
-    }
-
-    @media (max-width: 640px) {
-      :root {
-        --radius: 14px;
-      }
-
-      .shell {
-        width: calc(100% - 1rem);
-      }
-
-      .nav-inner {
-        flex-direction: column;
-        gap: 0.6rem;
-      }
-
-      .brand-title {
-        font-size: 1rem;
-      }
-
-      .brand-sub {
-        font-size: 0.72rem;
-      }
-
-      main {
-        margin: 0.8rem auto 1.5rem;
-        gap: 0.8rem;
-      }
-
-      .hero {
-        padding: 0.9rem;
-      }
-
-      .hero h1 {
-        font-size: clamp(1rem, 2vw, 1.4rem);
-      }
-
-      .hero p {
-        font-size: 0.85rem;
-      }
-
-      .stats-grid { 
-        grid-template-columns: 1fr; 
-        gap: 0.6rem;
-      }
-
-      .stat-pill {
-        padding: 0.7rem 0.8rem;
-        min-height: 4rem;
-      }
-
-      .card {
-        padding: 0.9rem;
-      }
-
-      .card h2 {
-        font-size: 0.78rem;
-      }
-
-      .upload-form { 
-        grid-template-columns: 1fr; 
-        gap: 0.6rem;
-      }
-
-      .field-name,
-      .field-file,
-      .field-submit { grid-column: span 1; }
-
-      .field input {
-        padding: 0.6rem 0.7rem;
-        font-size: 0.9rem;
-      }
-
-      .field label {
-        font-size: 0.75rem;
-      }
-
-      .btn {
-        padding: 0.55rem 0.8rem;
-        font-size: 0.78rem;
-        width: 100%;
-      }
-
-      .progress-wrap {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.6rem;
-      }
-
-      .progress-label {
-        text-align: left;
-        min-width: 0;
-        font-size: 0.75rem;
-      }
-
-      #toast {
-        right: 0.6rem;
-        left: 0.6rem;
-        bottom: 0.8rem;
-        max-width: none;
-        font-size: 0.8rem;
-        padding: 0.7rem 0.8rem;
-      }
-
-      .footer { 
-        margin-bottom: 0.8rem;
-        font-size: 0.7rem;
-        padding-top: 0.7rem;
-      }
-
-      .modal {
-        width: 95vw;
-        max-height: 90vh;
-      }
-
-      .modal-header,
-      .modal-footer {
-        padding: 0.75rem 0.9rem;
-      }
-
-      .modal-body {
-        padding: 0.9rem;
-      }
-
-      pre#log-output {
-        font-size: 0.7rem;
-        min-height: 200px;
-        padding: 0.7rem;
-      }
-
-      .table-wrap {
-        margin-top: 0.8rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      :root {
-        --radius: 12px;
-      }
-
-      .stats-grid {
-        gap: 0.5rem;
-      }
-
-      .stat-pill {
-        padding: 0.6rem 0.7rem;
-        min-height: 3.5rem;
-        border-radius: 11px;
-      }
-
-      .stat-pill label {
-        font-size: 0.65rem;
-      }
-
-      .stat-pill strong {
-        font-size: 1.1rem;
-      }
-
-      .btn {
-        padding: 0.5rem 0.7rem;
-        font-size: 0.75rem;
-        border-radius: 10px;
-      }
-
-      .btn-sm {
-        padding: 0.4rem 0.55rem;
-        font-size: 0.7rem;
-        border-radius: 8px;
-      }
-
-      .field input {
-        padding: 0.55rem 0.65rem;
-        font-size: 0.85rem;
-      }
-
-      #toast {
-        right: 0.5rem;
-        left: 0.5rem;
-        font-size: 0.75rem;
-        padding: 0.6rem 0.7rem;
-      }
-
-      table {
-        border-spacing: 0 0.5rem;
-      }
-
-      td {
-        padding: 0.5rem 0.6rem;
-        gap: 0.5rem;
-      }
-
-      td::before {
-        font-size: 0.65rem;
-      }
-
-      .actions .btn {
-        flex: 1 1 calc(50% - 0.25rem);
-        min-width: 60px;
-        font-size: 0.7rem;
-        padding: 0.4rem 0.5rem;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-        animation: none !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-      }
+    @media (max-width: 600px) {
+      .upload-form { flex-direction: column; }
+      .actions { flex-direction: column; }
+      td, th { padding: 10px 8px; }
     }
   </style>
 </head>
 <body>
-  <nav>
-    <div class="shell nav-inner">
-      <div class="brand">
-        <div class="brand-title">Bot<span>Panel</span></div>
-        <div class="brand-sub">Self-hosted Telegram bot deployment and runtime control.</div>
-      </div>
-      <div class="nav-spacer"></div>
-      <button class="btn btn-ghost" onclick="logout()">Logout</button>
-    </div>
-  </nav>
 
-  <main>
-    <section class="hero">
-      <h1>Deploy, monitor, and control your bots in one place.</h1>
-      <p>Fast uploads, live status tracking, and logs optimized for desktop and mobile screens.</p>
+<nav>
+  <div class="logo">&#x1F916; <span>Bot</span>Panel</div>
+  <div class="tagline">Self-Hosted Telegram Bot Manager</div>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</nav>
 
-      <div class="stats-grid" id="stats-bar">
-        <div class="stat-pill">
-          <label>Total Bots</label>
-          <strong id="stat-total">-</strong>
-        </div>
-        <div class="stat-pill">
-          <label>Running</label>
-          <strong id="stat-running" style="color:#6bd9a9">-</strong>
-        </div>
-        <div class="stat-pill">
-          <label>Stopped</label>
-          <strong id="stat-stopped" style="color:#ff9cab">-</strong>
-        </div>
-        <div class="stat-pill">
-          <label>Server</label>
-          <strong class="status-online">Online</strong>
-        </div>
-      </div>
-    </section>
+<main>
+  <!-- Stats bar -->
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-pill"><span>Total Bots:</span><strong id="stat-total">&mdash;</strong></div>
+    <div class="stat-pill"><span>Running:</span><strong id="stat-running" style="color:#3fb950">&mdash;</strong></div>
+    <div class="stat-pill"><span>Stopped:</span><strong id="stat-stopped" style="color:#f85149">&mdash;</strong></div>
+    <div class="stat-pill"><span>Server:</span><strong style="color:#58a6ff">Online &#x2713;</strong></div>
+  </div>
 
-    <section class="card">
-      <h2>Deploy New Bot</h2>
-      <form class="upload-form" id="upload-form" enctype="multipart/form-data">
-        <div class="field field-name">
-          <label for="bot-name">Bot Name</label>
-          <input type="text" id="bot-name" name="bot_name" placeholder="my_telegram_bot" required maxlength="60" />
-        </div>
-        <div class="field field-file">
-          <label for="bot-file">Bot File (.py or .zip)</label>
-          <input type="file" id="bot-file" name="file" accept=".py,.zip" required />
-        </div>
-        <div class="field field-submit">
-          <button type="submit" class="btn btn-primary" id="upload-btn">Upload and Deploy</button>
-        </div>
-      </form>
-
-      <div class="progress-wrap" id="progress-wrap">
-        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
-        <div class="progress-label" id="progress-label">Preparing upload...</div>
+  <!-- Upload card -->
+  <div class="card">
+    <h2>&#x2795; Deploy New Bot</h2>
+    <form class="upload-form" id="upload-form" enctype="multipart/form-data">
+      <div class="field">
+        <label for="bot-name">Bot Name</label>
+        <input type="text" id="bot-name" name="bot_name" placeholder="my_telegram_bot" required maxlength="60"/>
       </div>
-    </section>
-
-    <section class="card">
-      <h2>Deployed Bots</h2>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Status</th>
-              <th>Entry File</th>
-              <th>Deployed At</th>
-              <th style="text-align:right">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="bot-table-body">
-            <tr>
-              <td colspan="5">
-                <div class="empty-state">
-                  <div class="icon">[Bot]</div>
-                  <p>Loading bots...</p>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="field">
+        <label for="bot-file">Bot File (.py or .zip)</label>
+        <input type="file" id="bot-file" name="file" accept=".py,.zip" required/>
       </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    Made with love by
-    <a href="https://t.me/lonefaisal" target="_blank" rel="noopener">LONE FAISAL</a>
-    and
-    <a href="https://t.me/trueprofessor" target="_blank" rel="noopener">Professor</a><br />
-    <a href="https://t.me/arrow_network" target="_blank" rel="noopener">Arrow Network</a>
-    |
-    <a href="https://t.me/kmri_network_reborn" target="_blank" rel="noopener">KMRI Network</a>
-  </footer>
-
-  <div class="modal-overlay" id="modal-overlay">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 id="modal-title">Logs</h3>
-        <button class="modal-close" id="modal-close" aria-label="Close logs">x</button>
-      </div>
-      <div class="modal-body">
-        <pre id="log-output">Loading...</pre>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost btn-sm" id="refresh-logs-btn">Refresh</button>
-        <button class="btn btn-ghost btn-sm" id="modal-close-btn">Close</button>
-      </div>
+      <button type="submit" class="btn btn-primary" id="upload-btn">
+        &#x2B06; Upload &amp; Deploy
+      </button>
+    </form>
+    <div class="progress-wrap" id="progress-wrap">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+      <div class="progress-label" id="progress-label">Building image&hellip;</div>
     </div>
   </div>
 
-  <div id="toast"></div>
+  <!-- Bot list card -->
+  <div class="card">
+    <h2>&#x1F4CB; Deployed Bots</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Entry File</th>
+            <th>Deployed At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="bot-table-body">
+          <tr><td colspan="5"><div class="empty-state"><div class="icon">&#x1F916;</div><p>Loading bots&hellip;</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
 
-  <script>
-    const API = '/api/bots';
-    const POLL_MS = 10000;
+<!-- Branded footer -->
+<footer class="footer">
+  Made with <span class="heart">&hearts;</span> by
+  <a href="https://t.me/lonefaisal" target="_blank">LONE FAISAL</a> &amp;
+  <a href="https://t.me/trueprofessor" target="_blank">Professor</a>
+  <div class="channels">
+    &#x2726; <a href="https://t.me/arrow_network" target="_blank">Arrow Network</a> &nbsp;&nbsp;
+    &#x2726; <a href="https://t.me/kmri_network_reborn" target="_blank">KMRI Network</a>
+  </div>
+</footer>
 
-    let currentLogBotId = null;
-    let pollInterval = null;
-    let isLoadingBots = false;
+<!-- Logs modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">&#x1F4C4; Logs</h3>
+      <button class="modal-close" id="modal-close">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <pre id="log-output">Loading&hellip;</pre>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" id="refresh-logs-btn">&#x1F504; Refresh</button>
+      <button class="btn btn-ghost btn-sm" id="modal-close-btn">Close</button>
+    </div>
+  </div>
+</div>
 
-    function getToken() {
-      return localStorage.getItem('token');
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+  const API = '/api/bots';
+  let currentLogBotId = null;
+  let pollInterval = null;
+
+  // ── AUTH ───────────────────────────────────────────────────────────────────
+  function getToken() {
+    return localStorage.getItem('token');
+  }
+
+  function authHeaders() {
+    const token = getToken();
+    return token ? { 'Authorization': 'Bearer ' + token } : {};
+  }
+
+  function logout() {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  }
+
+  // Redirect to login if no token
+  if (!getToken()) {
+    window.location.href = '/login';
+  }
+
+  // ── TOAST ──────────────────────────────────────────────────────────────────
+  function toast(msg, type = 'info', duration = 3500) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show ' + type;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), duration);
+  }
+
+  // ── FETCH WRAPPER ──────────────────────────────────────────────────────────
+  async function api(path, opts = {}) {
+    if (!opts.headers) opts.headers = {};
+    Object.assign(opts.headers, authHeaders());
+
+    const res = await fetch(API + path, opts);
+    if (res.status === 401) {
+      logout();
+      return;
+    }
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.detail || 'HTTP ' + res.status);
+    return json;
+  }
+
+  // ── STATUS BADGE ───────────────────────────────────────────────────────────
+  function badge(status) {
+    const map = {
+      running: 'badge-running',
+      stopped: 'badge-stopped',
+      exited:  'badge-stopped',
+      error:   'badge-error',
+      building:'badge-building',
+      not_found:'badge-stopped',
+    };
+    const cls = map[status] || 'badge-stopped';
+    return '<span class="badge ' + cls + '">' + status + '</span>';
+  }
+
+  // ── LOAD BOTS ──────────────────────────────────────────────────────────────
+  async function loadBots() {
+    let bots;
+    try { bots = await api('/list'); }
+    catch(e) { return; }
+    if (!bots) return;
+
+    const body = document.getElementById('bot-table-body');
+    document.getElementById('stat-total').textContent   = bots.length;
+    document.getElementById('stat-running').textContent = bots.filter(b => b.status === 'running').length;
+    document.getElementById('stat-stopped').textContent = bots.filter(b => b.status !== 'running').length;
+
+    if (!bots.length) {
+      body.innerHTML = '<tr><td colspan="5"><div class="empty-state">' +
+        '<div class="icon">&#x1F916;</div>' +
+        '<p>No bots deployed yet. Upload your first bot above!</p>' +
+        '</div></td></tr>';
+      return;
     }
 
-    function authHeaders() {
-      const token = getToken();
-      return token ? { Authorization: 'Bearer ' + token } : {};
+    body.innerHTML = bots.map(b => '<tr id="row-' + b.id + '">' +
+      '<td><strong>' + escHtml(b.name) + '</strong></td>' +
+      '<td>' + badge(b.status) + '</td>' +
+      '<td><code style="font-size:.8rem;color:#79c0ff">' + escHtml(b.entry_file) + '</code></td>' +
+      '<td style="color:var(--muted);font-size:.82rem">' + fmtDate(b.created_at) + '</td>' +
+      '<td><div class="actions">' +
+        '<button class="btn btn-primary btn-sm" onclick="botAction(\'' + b.id + '\',\'start\')">&#x25B6; Start</button>' +
+        '<button class="btn btn-warn btn-sm" onclick="botAction(\'' + b.id + '\',\'stop\')">&#x23F8; Stop</button>' +
+        '<button class="btn btn-blue btn-sm" onclick="botAction(\'' + b.id + '\',\'restart\')">&#x1F504; Restart</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="openLogs(\'' + b.id + '\',\'' + escHtml(b.name) + '\')">&#x1F4C4; Logs</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="confirmDelete(\'' + b.id + '\',\'' + escHtml(b.name) + '\')">&#x1F5D1; Delete</button>' +
+      '</div></td></tr>').join('');
+  }
+
+  // ── BOT ACTION ─────────────────────────────────────────────────────────────
+  async function botAction(id, action) {
+    try {
+      await api('/' + id + '/' + action, { method: 'POST' });
+      toast('Bot ' + action + 'ed successfully.', 'success');
+      await loadBots();
+    } catch(e) {
+      toast(e.message, 'error', 5000);
     }
+  }
 
-    function logout() {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+  // ── DELETE CONFIRM ─────────────────────────────────────────────────────────
+  async function confirmDelete(id, name) {
+    if (!confirm('Delete bot "' + name + '"?\nThis will stop the container and remove all files.')) return;
+    try {
+      await api('/' + id, { method: 'DELETE' });
+      toast('Bot "' + name + '" deleted.', 'info');
+      await loadBots();
+    } catch(e) {
+      toast(e.message, 'error', 5000);
     }
+  }
 
-    if (!getToken()) {
-      window.location.href = '/login';
+  // ── LOGS MODAL ─────────────────────────────────────────────────────────────
+  async function openLogs(id, name) {
+    currentLogBotId = id;
+    document.getElementById('modal-title').textContent = 'Logs — ' + name;
+    document.getElementById('modal-overlay').classList.add('open');
+    await fetchLogs();
+  }
+
+  async function fetchLogs() {
+    if (!currentLogBotId) return;
+    const pre = document.getElementById('log-output');
+    try {
+      const data = await api('/' + currentLogBotId + '/logs');
+      if (!data) return;
+      pre.textContent = data.logs || '(no output yet)';
+      pre.scrollTop = pre.scrollHeight;
+    } catch(e) {
+      pre.textContent = 'Error: ' + e.message;
     }
+  }
 
-    function toast(msg, type = 'info', duration = 3400) {
-      const el = document.getElementById('toast');
-      el.textContent = msg;
-      el.className = 'show toast-' + type;
-      clearTimeout(el._timer);
-      el._timer = setTimeout(() => el.classList.remove('show'), duration);
-    }
+  document.getElementById('refresh-logs-btn').onclick = fetchLogs;
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('modal-close-btn').onclick = closeModal;
+  document.getElementById('modal-overlay').onclick = e => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  };
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    currentLogBotId = null;
+  }
 
-    async function api(path, opts = {}) {
-      if (!opts.headers) opts.headers = {};
-      Object.assign(opts.headers, authHeaders());
+  // ── UPLOAD ─────────────────────────────────────────────────────────────────
+  document.getElementById('upload-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const fd      = new FormData(e.target);
+    const btn     = document.getElementById('upload-btn');
+    const pw      = document.getElementById('progress-wrap');
+    const pf      = document.getElementById('progress-fill');
+    const pl      = document.getElementById('progress-label');
 
-      const res = await fetch(API + path, opts);
-      if (res.status === 401) {
-        logout();
-        return null;
+    btn.disabled = true;
+    pw.classList.add('show');
+    pf.style.width = '15%';
+    pl.textContent = 'Uploading\u2026';
+
+    const steps = [
+      [30,  'Extracting files\u2026'],
+      [55,  'Writing Dockerfile\u2026'],
+      [75,  'Building Docker image\u2026'],
+      [92,  'Starting container\u2026'],
+    ];
+    let si = 0;
+    const ticker = setInterval(() => {
+      if (si < steps.length) {
+        pf.style.width = steps[si][0] + '%';
+        pl.textContent = steps[si][1];
+        si++;
       }
+    }, 1400);
 
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(json.detail || ('HTTP ' + res.status));
-      }
-      return json;
+    try {
+      await api('/upload', { method: 'POST', body: fd });
+      clearInterval(ticker);
+      pf.style.width = '100%';
+      pl.textContent = 'Done!';
+      toast('Bot deployed successfully!', 'success');
+      e.target.reset();
+      await loadBots();
+    } catch(err) {
+      clearInterval(ticker);
+      toast(err.message, 'error', 6000);
+    } finally {
+      setTimeout(() => { pw.classList.remove('show'); pf.style.width = '0%'; }, 2000);
+      btn.disabled = false;
     }
+  };
 
-    function badge(status) {
-      const map = {
-        running: 'badge-running',
-        stopped: 'badge-stopped',
-        exited: 'badge-stopped',
-        error: 'badge-error',
-        building: 'badge-building',
-        not_found: 'badge-stopped'
-      };
-      const cls = map[status] || 'badge-stopped';
-      return '<span class="badge ' + cls + '">' + escHtml(status) + '</span>';
-    }
+  // ── HELPERS ────────────────────────────────────────────────────────────────
+  function escHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function fmtDate(s) {
+    if (!s) return '\u2014';
+    const d = new Date(s + 'Z');
+    return isNaN(d) ? s : d.toLocaleString();
+  }
 
-    async function loadBots() {
-      if (isLoadingBots) return;
-      isLoadingBots = true;
-
-      try {
-        const bots = await api('/list');
-        if (!bots) return;
-
-        const body = document.getElementById('bot-table-body');
-        const runningCount = bots.filter((b) => b.status === 'running').length;
-
-        document.getElementById('stat-total').textContent = bots.length;
-        document.getElementById('stat-running').textContent = runningCount;
-        document.getElementById('stat-stopped').textContent = bots.length - runningCount;
-
-        if (!bots.length) {
-          body.innerHTML =
-            '<tr><td colspan="5"><div class="empty-state">' +
-            '<div class="icon">[Bot]</div>' +
-            '<p>No bots deployed yet. Upload your first bot above.</p>' +
-            '</div></td></tr>';
-          return;
-        }
-
-        body.innerHTML = bots
-          .map((b) => {
-            const id = escAttr(b.id);
-            const name = escAttr(b.name);
-            return (
-              '<tr>' +
-                '<td data-label="Name"><strong>' + escHtml(b.name) + '</strong></td>' +
-                '<td data-label="Status">' + badge(b.status) + '</td>' +
-                '<td data-label="Entry File"><span class="entry-file">' + escHtml(b.entry_file) + '</span></td>' +
-                '<td data-label="Deployed At" class="date-cell">' + fmtDate(b.created_at) + '</td>' +
-                '<td data-label="Actions">' +
-                  '<div class="actions">' +
-                    '<button class="btn btn-primary btn-sm js-action" data-id="' + id + '" data-action="start">Start</button>' +
-                    '<button class="btn btn-warn btn-sm js-action" data-id="' + id + '" data-action="stop">Stop</button>' +
-                    '<button class="btn btn-blue btn-sm js-action" data-id="' + id + '" data-action="restart">Restart</button>' +
-                    '<button class="btn btn-ghost btn-sm js-logs" data-id="' + id + '" data-name="' + name + '">Logs</button>' +
-                    '<button class="btn btn-danger btn-sm js-delete" data-id="' + id + '" data-name="' + name + '">Delete</button>' +
-                  '</div>' +
-                '</td>' +
-              '</tr>'
-            );
-          })
-          .join('');
-      } catch (err) {
-        toast(err.message || 'Failed to load bots.', 'error', 5000);
-      } finally {
-        isLoadingBots = false;
-      }
-    }
-
-    async function botAction(id, action) {
-      try {
-        await api('/' + encodeURIComponent(id) + '/' + action, { method: 'POST' });
-        toast('Bot ' + action + ' request sent.', 'success');
-        await loadBots();
-      } catch (err) {
-        toast(err.message || 'Action failed.', 'error', 5200);
-      }
-    }
-
-    async function confirmDelete(id, name) {
-      const ok = confirm('Delete bot "' + name + '"? This stops the container and removes files.');
-      if (!ok) return;
-
-      try {
-        await api('/' + encodeURIComponent(id), { method: 'DELETE' });
-        toast('Bot "' + name + '" deleted.', 'info');
-        await loadBots();
-      } catch (err) {
-        toast(err.message || 'Delete failed.', 'error', 5200);
-      }
-    }
-
-    async function openLogs(id, name) {
-      currentLogBotId = id;
-      document.getElementById('modal-title').textContent = 'Logs - ' + name;
-      document.getElementById('modal-overlay').classList.add('open');
-      document.body.style.overflow = 'hidden';
-      await fetchLogs();
-    }
-
-    async function fetchLogs() {
-      if (!currentLogBotId) return;
-      const pre = document.getElementById('log-output');
-
-      try {
-        const data = await api('/' + encodeURIComponent(currentLogBotId) + '/logs');
-        if (!data) return;
-        pre.textContent = data.logs || '(no output yet)';
-        pre.scrollTop = pre.scrollHeight;
-      } catch (err) {
-        pre.textContent = 'Error: ' + (err.message || 'Failed to load logs.');
-      }
-    }
-
-    function closeModal() {
-      document.getElementById('modal-overlay').classList.remove('open');
-      document.body.style.overflow = '';
-      currentLogBotId = null;
-    }
-
-    function startPolling() {
-      stopPolling();
-      pollInterval = setInterval(() => {
-        if (!document.hidden) loadBots();
-      }, POLL_MS);
-    }
-
-    function stopPolling() {
-      if (!pollInterval) return;
-      clearInterval(pollInterval);
-      pollInterval = null;
-    }
-
-    document.getElementById('bot-table-body').addEventListener('click', async (event) => {
-      const button = event.target.closest('button');
-      if (!button) return;
-
-      if (button.classList.contains('js-action')) {
-        await botAction(button.dataset.id, button.dataset.action);
-      }
-
-      if (button.classList.contains('js-logs')) {
-        await openLogs(button.dataset.id, button.dataset.name || 'Bot');
-      }
-
-      if (button.classList.contains('js-delete')) {
-        await confirmDelete(button.dataset.id, button.dataset.name || 'Bot');
-      }
-    });
-
-    document.getElementById('refresh-logs-btn').addEventListener('click', fetchLogs);
-    document.getElementById('modal-close').addEventListener('click', closeModal);
-    document.getElementById('modal-close-btn').addEventListener('click', closeModal);
-    document.getElementById('modal-overlay').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('modal-overlay')) closeModal();
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && currentLogBotId) closeModal();
-    });
-
-    document.getElementById('upload-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const fd = new FormData(e.target);
-      const btn = document.getElementById('upload-btn');
-      const progressWrap = document.getElementById('progress-wrap');
-      const progressFill = document.getElementById('progress-fill');
-      const progressLabel = document.getElementById('progress-label');
-
-      btn.disabled = true;
-      progressWrap.classList.add('show');
-      progressFill.style.width = '12%';
-      progressLabel.textContent = 'Uploading...';
-
-      const steps = [
-        [28, 'Extracting files...'],
-        [52, 'Preparing runtime...'],
-        [76, 'Building image...'],
-        [92, 'Starting container...']
-      ];
-
-      let idx = 0;
-      const ticker = setInterval(() => {
-        if (idx >= steps.length) return;
-        progressFill.style.width = steps[idx][0] + '%';
-        progressLabel.textContent = steps[idx][1];
-        idx += 1;
-      }, 1300);
-
-      try {
-        await api('/upload', { method: 'POST', body: fd });
-        clearInterval(ticker);
-        progressFill.style.width = '100%';
-        progressLabel.textContent = 'Done';
-        toast('Bot deployed successfully.', 'success');
-        e.target.reset();
-        await loadBots();
-      } catch (err) {
-        clearInterval(ticker);
-        toast(err.message || 'Upload failed.', 'error', 5600);
-      } finally {
-        setTimeout(() => {
-          progressWrap.classList.remove('show');
-          progressFill.style.width = '0';
-        }, 1500);
-        btn.disabled = false;
-      }
-    });
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        stopPolling();
-      } else {
-        loadBots();
-        startPolling();
-      }
-    });
-
-    window.addEventListener('beforeunload', stopPolling);
-
-    function escHtml(input) {
-      return String(input ?? '').replace(/[&<>"']/g, (char) => {
-        const map = {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;'
-        };
-        return map[char] || char;
-      });
-    }
-
-    function escAttr(input) {
-      return escHtml(input).replace(/`/g, '&#96;');
-    }
-
-    function fmtDate(raw) {
-      if (!raw) return '-';
-      const withZone = /z$|[+-]\d\d:\d\d$/i.test(raw) ? raw : raw + 'Z';
-      const date = new Date(withZone);
-      return Number.isNaN(date.getTime()) ? escHtml(raw) : date.toLocaleString();
-    }
-
-    loadBots();
-    startPolling();
-  </script>
+  // ── INIT ───────────────────────────────────────────────────────────────────
+  loadBots();
+  pollInterval = setInterval(loadBots, 8000);
+</script>
 </body>
 </html>
