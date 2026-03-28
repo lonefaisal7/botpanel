@@ -1,154 +1,155 @@
-# 🤖 Bot Hosting Panel
+# Bot Hosting Panel
 
-A **self-hosted Telegram bot hosting panel** built with FastAPI + Docker.
-Deploy, manage, and monitor your Telegram bots from a clean web dashboard — running on your own Ubuntu VPS.
+A self-hosted Telegram bot management panel built with **FastAPI + Docker**.
+Deploy, run, monitor, and control multiple bots from a clean web dashboard on your own VPS.
 
-> **Repository:** [https://github.com/lonefaisal7/botpanel](https://github.com/lonefaisal7/botpanel)
+Repository: [github.com/lonefaisal7/botpanel](https://github.com/lonefaisal7/botpanel)
 
----
+## Project Overview
 
-## ✨ Features
+**Bot Hosting Panel** is designed for users who want full control over Telegram bot hosting without relying on third-party dashboards.
+Each bot runs in an isolated Docker container, while the panel provides a simple web UI for deployment, lifecycle management, and logs.
 
-| Feature | Details |
-|---|---|
-| 🔒 JWT Auth | Login required — bcrypt-hashed password, JWT Bearer tokens |
-| 📦 Upload bots | `.py` single file or `.zip` archive |
-| 🐳 Docker isolation | Every bot runs in its own `python:3.11-slim` container |
-| ⚙️ Auto Dockerfile | Generated per-bot with auto dependency install |
-| ▶️ Start / ⏸ Stop / 🔄 Restart | Full container lifecycle control |
-| 🗑 Delete | Removes container, image, and all files |
-| 📄 Live Logs | Tail Docker logs in a modal popup |
-| 🔁 Auto-refresh | Dashboard polls every 8 seconds |
-| 💾 SQLite DB | No external database needed |
-| 🔄 One-command Update | `sudo bash /opt/botpanel/update.sh` |
-| 🗑 Clean Uninstall | `sudo bash /opt/botpanel/uninstall.sh` |
-| 🛡 Resource limits | 200MB RAM + 0.5 CPU per bot container |
+### Why this project
 
----
+- Self-hosted control over your bots and data
+- Isolated runtime per bot using Docker
+- Beginner-friendly web interface for daily operations
+- Simple update and uninstall workflow
 
-## 🚀 One-Command Install
+## Features
+
+### Core Panel Features
+
+- Secure login with JWT authentication
+- Upload bot files as `.py` or `.zip`
+- Start, stop, restart, and delete bots from dashboard
+- Live bot logs in a modal viewer
+- Auto-refreshing dashboard state
+
+### Runtime & Isolation
+
+- Dedicated Docker container per bot
+- Auto-generated Dockerfile for deployments
+- Automatic dependency installation from `requirements.txt`
+- Resource limits per container (memory and CPU)
+
+### Data & Security
+
+- SQLite-based storage (no external DB required)
+- Bcrypt-hashed credentials
+- Path sanitization and upload validation
+- Protected API routes with Bearer token auth
+
+### Operations
+
+- One-command install script
+- One-command update script
+- Clean uninstall script with interactive and non-interactive modes
+
+## Quick Start (One-Command Install)
+
+Use this on a fresh Ubuntu VPS:
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/lonefaisal7/botpanel/main/setup.sh | sudo bash
 ```
 
-After install, open **http://YOUR\_VPS\_IP:8000** in your browser. On first visit you will see a **Create Admin Account** screen where you set your username and password. Credentials are securely stored using bcrypt hashing. On subsequent visits you will see the normal login screen.
+After installation:
 
-> **Prerequisites:** Fresh Ubuntu 20.04/22.04/24.04 VPS with port **8000** open.
+1. Open `http://YOUR_VPS_IP:8000`
+2. On first visit, create your admin account
+3. Log in and start deploying bots
 
----
+Recommended environment:
 
-## 🛠 Manual Install
+- Ubuntu 20.04 / 22.04 / 24.04
+- Port `8000` open
+- Docker available (installer handles this if missing)
+
+## Manual Installation & Setup
 
 ```bash
 git clone https://github.com/lonefaisal7/botpanel
 cd botpanel
-python3 -m venv venv && source venv/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 chmod +x run.sh
 ./run.sh
-# Open http://localhost:8000 — create your admin account on first visit
 ```
 
-To pre-configure credentials (e.g. CI/scripts) you can still run `python3 set_password.py` before starting the server.
+Then open:
 
----
+- Dashboard: `http://localhost:8000`
+- API docs: `http://localhost:8000/docs`
 
-## 📁 Project Structure
+Optional: set admin password manually before first login:
 
-```
-botpanel/
-├── app/
-│   ├── main.py               ← FastAPI app entry point
-│   ├── auth.py               ← JWT authentication (bcrypt + python-jose)
-│   ├── models/bot.py         ← SQLAlchemy models + SQLite engine
-│   ├── routes/
-│   │   ├── bots.py           ← Bot API route definitions
-│   │   └── auth.py           ← Login / logout routes
-│   └── services/
-│       ├── bot_service.py    ← Upload, start, stop, delete logic
-│       └── docker_service.py ← Docker SDK wrapper
-├── frontend/
-│   ├── index.html            ← Full SPA dashboard (vanilla JS)
-│   └── login.html            ← Login page
-├── bots/                     ← Bot source files (per bot_id folder)
-├── uploads/                  ← Temporary upload staging
-├── .env                      ← Admin credentials + secret key (auto-generated)
-├── .env.example              ← Template for .env
-├── requirements.txt
-├── botpanel.service          ← Systemd unit file
-├── setup.sh                  ← One-command VPS installer
-├── update.sh                 ← One-command updater
-├── uninstall.sh              ← Clean uninstaller
-├── set_password.py           ← Admin password utility
-├── run.sh                    ← Start the server manually
-└── README.md
+```bash
+python3 set_password.py
 ```
 
----
+## Usage Guide
 
-## 🔌 API Endpoints
+### 1. Log In / Initial Setup
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET`  | `/api/auth/setup-status` | Check if admin account exists |
-| `POST` | `/api/auth/setup` | Create admin account (first run only) |
-| `POST` | `/login` | Authenticate and receive JWT token |
-| `POST` | `/api/bots/upload` | Upload bot (`file` + `bot_name`) |
-| `GET`  | `/api/bots/list` | List all bots with live status |
-| `POST` | `/api/bots/{id}/start` | Start bot container |
-| `POST` | `/api/bots/{id}/stop` | Stop bot container |
-| `POST` | `/api/bots/{id}/restart` | Restart bot container |
-| `DELETE` | `/api/bots/{id}` | Delete bot (container + image + files) |
-| `GET`  | `/api/bots/{id}/logs` | Get last 150 lines of Docker logs |
-| `GET`  | `/health` | Health check |
+- First run: create admin account from setup screen
+- Next runs: log in using your configured credentials
 
-All endpoints except `/login` and `/health` require `Authorization: Bearer <token>` header.
+### 2. Deploy a Bot
 
-Interactive Swagger docs: **http://YOUR\_VPS\_IP:8000/docs**
+- Upload either:
+  - A single `.py` bot file
+  - A `.zip` archive containing bot source files
+- Assign a bot name during upload
 
----
+### 3. Manage Bots
 
-## 📤 How to Upload a Bot
+Inside **Deployed Bots**, you can:
 
-### Single `.py` file
-Upload `bot.py` directly — must contain your bot's main logic.
+- Start
+- Stop
+- Restart
+- Delete
+- Open logs
 
-### `.zip` archive
-```
-mybot.zip
-├── bot.py            ← entry point (or main.py)
-├── requirements.txt  ← optional, auto-installed
-└── config.py         ← any helper files
-```
+### 4. View Logs
 
----
+Use the logs action on any deployed bot to inspect runtime output directly in dashboard.
 
-## 🐳 Auto-Generated Dockerfile
+## Commands Reference
 
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY . /app
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
-CMD ["python", "-u", "bot.py"]
+### Service Commands
+
+```bash
+systemctl status botpanel
+journalctl -u botpanel -f
+systemctl restart botpanel
+systemctl stop botpanel
 ```
 
-All containers run with `--restart unless-stopped`, 200MB memory limit, and 0.5 CPU limit.
+### Update Panel
 
----
+Pull latest code and restart service:
 
-## 🔒 Security
+```bash
+sudo bash /opt/botpanel/update.sh
+```
 
-- **No default credentials** — first visit requires creating an admin account
-- **JWT authentication** — Dashboard and API require Bearer token
-- Passwords stored as **bcrypt hashes** in `.env` (never plain text)
-- JWT tokens signed with a random SECRET\_KEY
-- Only `.py` and `.zip` files accepted; 50 MB max upload
-- Zip-slip / path traversal protection
-- Bot code runs **exclusively inside Docker containers** with resource limits
-- File paths sanitized via `os.path.realpath`
+### Uninstall Panel
+
+Interactive uninstall:
+
+```bash
+sudo bash /opt/botpanel/uninstall.sh
+```
+
+Non-interactive uninstall:
+
+```bash
+sudo bash /opt/botpanel/uninstall.sh --yes
+```
 
 ### Change Admin Password
 
@@ -156,66 +157,39 @@ All containers run with `--restart unless-stopped`, 200MB memory limit, and 0.5 
 sudo /opt/botpanel/venv/bin/python /opt/botpanel/set_password.py
 ```
 
----
+## Screenshots
 
-## 🧩 Manage the Panel Service
+No screenshots are currently committed in this repository.
+Use the placeholders below and replace them with real images when available.
 
-```bash
-systemctl status botpanel       # Check status
-journalctl -u botpanel -f       # Live logs
-systemctl restart botpanel      # Restart
-systemctl stop botpanel         # Stop
+```text
+docs/screenshots/dashboard.png
+docs/screenshots/deploy-form.png
+docs/screenshots/bot-controls.png
+docs/screenshots/log-modal.png
 ```
 
----
+Example markdown you can use after adding files:
 
-## 🔄 Update
-
-Pull the latest code and restart the service in one step:
-
-```bash
-sudo bash /opt/botpanel/update.sh
+```md
+![Dashboard](docs/screenshots/dashboard.png)
+![Deploy Form](docs/screenshots/deploy-form.png)
+![Bot Controls](docs/screenshots/bot-controls.png)
+![Log Modal](docs/screenshots/log-modal.png)
 ```
 
-This preserves your bot data, database, and credentials. Only the application code and dependencies are refreshed.
+## Branding & Contact
 
----
+Built and maintained by **LONE FAISAL & PROFESSOR**.
 
-## 🗑 Uninstall
+- LONE FAISAL: [t.me/lonefaisal](https://t.me/lonefaisal)
+- PROFESSOR: [t.me/trueprofessor](https://t.me/trueprofessor)
 
-Completely remove Bot Hosting Panel, its service, bot containers, and images:
+Official channels:
 
-```bash
-sudo bash /opt/botpanel/uninstall.sh
-```
+- ARROW NETWORK: [t.me/arrow_network](https://t.me/arrow_network)
+- KMRI NETWORK: [t.me/kmri_network_reborn](https://t.me/kmri_network_reborn)
 
-For non-interactive use: `sudo bash /opt/botpanel/uninstall.sh --yes`
+## License
 
-Docker and Python are **not** removed (they may be used by other software).
-
----
-
-## 📌 VPS Requirements
-
-- Ubuntu 20.04 / 22.04 / 24.04
-- Minimum 1 GB RAM, 10 GB disk
-- Port **8000** open in firewall / security group
-- Docker daemon running
-
----
-
-## ❤️ Made with love by
-
-- **LONE FAISAL** → [https://t.me/lonefaisal](https://t.me/lonefaisal)
-- **Professor** → [https://t.me/trueprofessor](https://t.me/trueprofessor)
-
-### 📢 Official Channels
-
-- ✦ **Arrow Network** → [https://t.me/arrow_network](https://t.me/arrow_network)
-- ✦ **KMRI Network** → [https://t.me/kmri_network_reborn](https://t.me/kmri_network_reborn)
-
----
-
-## 📄 License
-
-MIT — free to use, modify, and self-host.
+MIT License.
