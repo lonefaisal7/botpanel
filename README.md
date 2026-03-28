@@ -1,184 +1,187 @@
-# Bot Hosting Panel
+# 🚀 Bot Hosting Panel
 
-A self-hosted Telegram bot management panel built with **FastAPI + Docker**.
-Deploy, run, monitor, and control multiple bots from a clean web dashboard on your own VPS.
+<p align="center">
+  <img src="https://img.shields.io/github/stars/lonefaisal7/botpanel?style=for-the-badge" />
+  <img src="https://img.shields.io/github/forks/lonefaisal7/botpanel?style=for-the-badge" />
+  <img src="https://img.shields.io/github/license/lonefaisal7/botpanel?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Docker-Required-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+</p>
 
-Repository: [github.com/lonefaisal7/botpanel](https://github.com/lonefaisal7/botpanel)
+> ⚡ Self-hosted Telegram bot management panel powered by **FastAPI + Docker**
 
-## Project Overview
+A modern, production-ready system to **deploy, manage, and monitor multiple Telegram bots** on your own VPS — with complete control over infrastructure, security, and scaling.
 
-**Bot Hosting Panel** is designed for users who want full control over Telegram bot hosting without relying on third-party dashboards.
-Each bot runs in an isolated Docker container, while the panel provides a simple web UI for deployment, lifecycle management, and logs.
+---
 
-### Why this project
+## 🎬 Demo Preview
 
-- Self-hosted control over your bots and data
-- Isolated runtime per bot using Docker
-- Beginner-friendly web interface for daily operations
-- Simple update and uninstall workflow
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/403e4fa7-3751-4556-b494-d129178e694f" width="100%" />
+</p>
 
-## Features
+> 💡 Tip: Replace this image with a short GIF recording for higher engagement
 
-### Core Panel Features
+---
 
-- Secure login with JWT authentication
-- Upload bot files as `.py` or `.zip`
-- Start, stop, restart, and delete bots from dashboard
-- Live bot logs in a modal viewer
-- Auto-refreshing dashboard state
+## 🧠 Why Choose Bot Hosting Panel?
 
-### Runtime & Isolation
+| Feature | This Panel | Typical Panels |
+|--------|-----------|---------------|
+| Full Ownership | ✅ | ❌ |
+| Docker Isolation | ✅ | ⚠️ Limited |
+| No Subscription | ✅ | ❌ |
+| Easy Deployment | ✅ | ⚠️ Complex |
+| Open Source | ✅ | ❌ |
+| Lightweight | ✅ | ❌ |
 
-- Dedicated Docker container per bot
-- Auto-generated Dockerfile for deployments
-- Automatic dependency installation from `requirements.txt`
-- Resource limits per container (memory and CPU)
+👉 Built for developers who want **control, simplicity, and performance** — without SaaS limitations.
 
-### Data & Security
+---
 
-- SQLite-based storage (no external DB required)
-- Bcrypt-hashed credentials
-- Path sanitization and upload validation
-- Protected API routes with Bearer token auth
+## ✨ Highlights
 
-### Operations
+- 🧠 Fully self-hosted — no third-party dependency
+- 🐳 Docker-based isolation per bot
+- ⚡ FastAPI backend (high performance)
+- 🎛️ Clean and responsive UI
+- 🔐 Secure authentication system
+- 📦 One-command install & update
 
-- One-command install script
-- One-command update script
-- Clean uninstall script with interactive and non-interactive modes
+---
 
-## Quick Start (One-Command Install)
+## 🧩 Architecture
 
-Use this on a fresh Ubuntu VPS:
+```
+User → Web UI → FastAPI → Docker Containers → Telegram Bots
+```
+
+- Each bot runs in its **own isolated container**
+- Panel controls lifecycle + logs + deployment
+- SQLite used (no external DB needed)
+
+---
+
+## 🔥 Features
+
+### 🖥️ Dashboard
+- Secure JWT authentication
+- Upload `.py` / `.zip`
+- Live bot logs viewer
+- Auto-refresh UI
+
+### 🐳 Runtime
+- One container per bot
+- Auto dependency install
+- Resource limits (CPU / RAM)
+
+### 🔐 Security
+- Bcrypt password hashing
+- Token-based API protection
+- File validation + sanitization
+
+### ⚙️ DevOps
+- One-command install
+- Update script
+- Clean uninstall
+- systemd service support
+
+---
+
+## ⚡ Quick Install
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/lonefaisal7/botpanel/main/setup.sh | sudo bash
 ```
 
-After installation:
+Then open:
 
-1. Open `http://YOUR_VPS_IP:8000`
-2. On first visit, create your admin account
-3. Log in and start deploying bots
+```
+http://YOUR_VPS_IP:8000
+```
 
-Recommended environment:
+---
 
-- Ubuntu 20.04 / 22.04 / 24.04
-- Port `8000` open
-- Docker available (installer handles this if missing)
-
-## Manual Installation & Setup
+## 🛠️ Manual Setup
 
 ```bash
 git clone https://github.com/lonefaisal7/botpanel
 cd botpanel
+
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+
 chmod +x run.sh
 ./run.sh
 ```
 
-Then open:
+---
 
-- Dashboard: `http://localhost:8000`
-- API docs: `http://localhost:8000/docs`
+## 📦 Usage Flow
 
-Optional: set admin password manually before first login:
+1. Create admin account
+2. Upload bot file
+3. Deploy container
+4. Monitor logs
+5. Control lifecycle
 
-```bash
-python3 set_password.py
-```
+---
 
-## Usage Guide
-
-### 1. Log In / Initial Setup
-
-- First run: create admin account from setup screen
-- Next runs: log in using your configured credentials
-
-### 2. Deploy a Bot
-
-- Upload either:
-  - A single `.py` bot file
-  - A `.zip` archive containing bot source files
-- Assign a bot name during upload
-
-### 3. Manage Bots
-
-Inside **Deployed Bots**, you can:
-
-- Start
-- Stop
-- Restart
-- Delete
-- Open logs
-
-### 4. View Logs
-
-Use the logs action on any deployed bot to inspect runtime output directly in dashboard.
-
-## Commands Reference
-
-### Service Commands
+## 🧰 Commands
 
 ```bash
 systemctl status botpanel
 journalctl -u botpanel -f
 systemctl restart botpanel
-systemctl stop botpanel
 ```
 
-### Update Panel
+---
 
-Pull latest code and restart service:
+## 🔄 Update
 
 ```bash
 sudo bash /opt/botpanel/update.sh
 ```
 
-### Uninstall Panel
+---
 
-Interactive uninstall:
-
-```bash
-sudo bash /opt/botpanel/uninstall.sh
-```
-
-Non-interactive uninstall:
+## 🗑️ Uninstall
 
 ```bash
 sudo bash /opt/botpanel/uninstall.sh --yes
 ```
 
-### Change Admin Password
+---
 
-```bash
-sudo /opt/botpanel/venv/bin/python /opt/botpanel/set_password.py
-```
+## 👨‍💻 Authors
 
-## Screenshots
+**LONE FAISAL**  
+https://t.me/lonefaisal
 
+**PROFESSOR**  
+https://t.me/trueprofessor
 
+---
 
-<img width="1919" height="912" alt="dashboard" src="https://github.com/user-attachments/assets/403e4fa7-3751-4556-b494-d129178e694f" />
+## 📢 Community
 
+- https://t.me/arrow_network  
+- https://t.me/kmri_network_reborn
 
+---
 
+## ⭐ Support
 
+If this project helps you:
 
-## Branding & Contact
+⭐ Star the repo  
+🔁 Share it  
+🛠️ Contribute improvements
 
-Built and maintained by **LONE FAISAL & PROFESSOR**.
+---
 
-- LONE FAISAL: [t.me/lonefaisal](https://t.me/lonefaisal)
-- PROFESSOR: [t.me/trueprofessor](https://t.me/trueprofessor)
+## 📄 License
 
-Official channels:
+MIT License
 
-- ARROW NETWORK: [t.me/arrow_network](https://t.me/arrow_network)
-- KMRI NETWORK: [t.me/kmri_network_reborn](https://t.me/kmri_network_reborn)
-
-## License
-
-MIT License.
