@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.auth import auth_middleware, credentials_configured
-from app.routes import bots, auth as auth_routes
+from app.routes import bots, auth as auth_routes, system as system_routes
 from app.models.bot import Base, engine
 
 logging.basicConfig(level=logging.INFO)
@@ -33,6 +33,8 @@ Base.metadata.create_all(bind=engine)
 app.include_router(auth_routes.router, tags=["Auth"])
 # Bot API routes
 app.include_router(bots.router, prefix="/api/bots", tags=["Bots"])
+# System actions API routes
+app.include_router(system_routes.router, prefix="/api/system", tags=["System"])
 app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
 

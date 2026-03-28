@@ -386,6 +386,14 @@
     justify-content: flex-start;
   }
 
+  .setting-action .btn:disabled {
+    cursor: not-allowed;
+    opacity: .7;
+    filter: grayscale(.18);
+    transform: none;
+    box-shadow: none;
+  }
+
   .btn-danger-alt {
     background: linear-gradient(135deg, #ff5b79, #cf274c);
     color: #fff;
@@ -395,6 +403,98 @@
   .btn-danger-alt:hover {
     box-shadow: 0 10px 24px rgba(176, 23, 58, 0.45);
     filter: brightness(1.04);
+  }
+
+  .panel-action-monitor {
+    margin-top: 14px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: rgba(8, 14, 28, 0.84);
+    padding: 14px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .panel-action-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .panel-action-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    text-transform: uppercase;
+    font-size: .7rem;
+    letter-spacing: .7px;
+    font-weight: 700;
+  }
+
+  .panel-action-status.idle {
+    color: #aac0e6;
+    border-color: rgba(140, 165, 209, 0.35);
+    background: rgba(110, 140, 189, 0.13);
+  }
+
+  .panel-action-status.running {
+    color: #8fbcff;
+    border-color: rgba(90, 162, 255, 0.4);
+    background: rgba(90, 162, 255, 0.16);
+  }
+
+  .panel-action-status.success {
+    color: #7ef3ba;
+    border-color: rgba(47, 218, 139, 0.5);
+    background: rgba(47, 218, 139, 0.16);
+  }
+
+  .panel-action-status.failed {
+    color: #ffb3c0;
+    border-color: rgba(255, 91, 121, 0.45);
+    background: rgba(255, 91, 121, 0.16);
+  }
+
+  .panel-action-label {
+    color: var(--muted);
+    font-size: .83rem;
+  }
+
+  .panel-spinner {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(90, 162, 255, 0.35);
+    border-top-color: #88b4ff;
+    animation: spin 1s linear infinite;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .panel-spinner.show { opacity: 1; }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .panel-output {
+    margin: 0;
+    border-radius: 12px;
+    border: 1px solid rgba(90, 162, 255, 0.24);
+    background: #050a17;
+    color: #9de6bf;
+    min-height: 120px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 12px;
+    font-family: "Cascadia Code", "Fira Code", monospace;
+    font-size: .76rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 
   .upload-form {
@@ -1007,7 +1107,7 @@
             </div>
             <p class="setting-note">Preserves bot data, database, credentials.</p>
             <div class="setting-action">
-              <button type="button" class="btn btn-primary">Update Panel</button>
+              <button type="button" class="btn btn-primary" id="update-panel-btn">Update Panel</button>
             </div>
           </article>
 
@@ -1021,9 +1121,17 @@
             </div>
             <p class="setting-warning">This action is destructive. Always review before continuing.</p>
             <div class="setting-action">
-              <a href="#uninstall-confirm" class="btn btn-danger-alt">Uninstall Panel</a>
+              <button type="button" class="btn btn-danger-alt" id="open-uninstall-modal-btn">Uninstall Panel</button>
             </div>
           </article>
+        </div>
+        <div class="panel-action-monitor" id="panel-action-monitor">
+          <div class="panel-action-head">
+            <span class="panel-action-status idle" id="panel-action-status">Idle</span>
+            <span class="panel-spinner" id="panel-action-spinner" aria-hidden="true"></span>
+            <span class="panel-action-label" id="panel-action-label">No panel action is running.</span>
+          </div>
+          <pre class="panel-output" id="panel-action-output">Ready. Panel action logs will appear here.</pre>
         </div>
       </div>
     </main>
@@ -1048,7 +1156,7 @@
     </div>
     <div class="confirm-actions">
       <a href="#panel-settings" class="btn btn-ghost">Cancel</a>
-      <a href="#panel-settings" class="btn btn-danger-alt">I Understand</a>
+      <button type="button" class="btn btn-danger-alt" id="confirm-uninstall-btn">I Understand</button>
     </div>
   </div>
 </div>
@@ -1105,8 +1213,12 @@
 
 <script>
   const API = '/api/bots';
+  const SYSTEM_API = '/api/system';
   let currentLogBotId = null;
   let pollInterval = null;
+  let currentSystemJobId = null;
+  let currentSystemAction = null;
+  let systemPollInterval = null;
 
   // ── AUTH ───────────────────────────────────────────────────────────────────
   function getToken() {
@@ -1143,6 +1255,20 @@
     Object.assign(opts.headers, authHeaders());
 
     const res = await fetch(API + path, opts);
+    if (res.status === 401) {
+      logout();
+      return;
+    }
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.detail || 'HTTP ' + res.status);
+    return json;
+  }
+
+  async function systemApi(path, opts = {}) {
+    if (!opts.headers) opts.headers = {};
+    Object.assign(opts.headers, authHeaders());
+
+    const res = await fetch(SYSTEM_API + path, opts);
     if (res.status === 401) {
       logout();
       return;
@@ -1302,6 +1428,143 @@
   };
 
   // ── HELPERS ────────────────────────────────────────────────────────────────
+  // Panel actions (update / uninstall)
+  function panelNow() {
+    return new Date().toLocaleTimeString();
+  }
+
+  function setPanelStatus(state, text) {
+    const statusEl = document.getElementById('panel-action-status');
+    const labelEl = document.getElementById('panel-action-label');
+    const spinner = document.getElementById('panel-action-spinner');
+
+    statusEl.className = 'panel-action-status ' + state;
+    statusEl.textContent = state;
+    labelEl.textContent = text;
+
+    if (state === 'running') spinner.classList.add('show');
+    else spinner.classList.remove('show');
+  }
+
+  function setPanelOutput(text) {
+    const el = document.getElementById('panel-action-output');
+    el.textContent = text || '(no output yet)';
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function appendPanelOutput(line) {
+    const el = document.getElementById('panel-action-output');
+    const hasDefault = el.textContent === 'Ready. Panel action logs will appear here.';
+    if (hasDefault) el.textContent = '';
+    const prefix = el.textContent ? '\n' : '';
+    el.textContent += prefix + '[' + panelNow() + '] ' + line;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function disablePanelButtons(disabled) {
+    document.getElementById('update-panel-btn').disabled = disabled;
+    document.getElementById('open-uninstall-modal-btn').disabled = disabled;
+    document.getElementById('confirm-uninstall-btn').disabled = disabled;
+  }
+
+  function stopPanelPolling() {
+    if (systemPollInterval) {
+      clearInterval(systemPollInterval);
+      systemPollInterval = null;
+    }
+  }
+
+  async function pollPanelJobStatus() {
+    if (!currentSystemJobId) return;
+
+    try {
+      const [status, logs] = await Promise.all([
+        systemApi('/jobs/' + currentSystemJobId),
+        systemApi('/jobs/' + currentSystemJobId + '/logs'),
+      ]);
+      if (!status || !logs) return;
+
+      setPanelOutput(logs.logs || '(no output yet)');
+
+      if (status.status === 'running') {
+        setPanelStatus('running', (currentSystemAction === 'uninstall' ? 'Uninstall' : 'Update') + ' is running...');
+        return;
+      }
+
+      stopPanelPolling();
+
+      if (status.status === 'success') {
+        setPanelStatus('success', (currentSystemAction === 'uninstall' ? 'Uninstall' : 'Update') + ' completed successfully.');
+        toast((currentSystemAction === 'uninstall' ? 'Uninstall' : 'Update') + ' completed.', 'success');
+      } else {
+        setPanelStatus('failed', (currentSystemAction === 'uninstall' ? 'Uninstall' : 'Update') + ' failed.');
+        toast(status.error || 'Panel action failed.', 'error', 6000);
+      }
+
+      currentSystemJobId = null;
+      currentSystemAction = null;
+      disablePanelButtons(false);
+    } catch (e) {
+      if (currentSystemAction === 'uninstall') {
+        stopPanelPolling();
+        setPanelStatus('success', 'Panel uninstall started. Service may be shutting down.');
+        appendPanelOutput('Connection lost after uninstall start. Treating as successful shutdown.');
+        toast('Uninstall started. Panel service may be shutting down.', 'info', 7000);
+        currentSystemJobId = null;
+        currentSystemAction = null;
+        return;
+      }
+
+      stopPanelPolling();
+      setPanelStatus('failed', 'Unable to track panel action status.');
+      appendPanelOutput('Error while polling status: ' + e.message);
+      toast(e.message, 'error', 6000);
+      currentSystemJobId = null;
+      currentSystemAction = null;
+      disablePanelButtons(false);
+    }
+  }
+
+  async function startPanelAction(action) {
+    if (currentSystemJobId) return;
+
+    const actionLabel = action === 'uninstall' ? 'Uninstall' : 'Update';
+    disablePanelButtons(true);
+    setPanelStatus('running', actionLabel + ' is starting...');
+    appendPanelOutput(actionLabel + ' action requested.');
+
+    try {
+      const data = await systemApi('/' + action, { method: 'POST' });
+      if (!data || !data.job_id) throw new Error('No job id returned by server.');
+
+      currentSystemJobId = data.job_id;
+      currentSystemAction = action;
+
+      if (action === 'uninstall') window.location.hash = 'panel-settings';
+
+      await pollPanelJobStatus();
+      if (currentSystemJobId) {
+        stopPanelPolling();
+        systemPollInterval = setInterval(pollPanelJobStatus, 2500);
+      }
+    } catch (e) {
+      stopPanelPolling();
+      setPanelStatus('failed', actionLabel + ' failed to start.');
+      appendPanelOutput('Start failed: ' + e.message);
+      toast(e.message, 'error', 6000);
+      currentSystemJobId = null;
+      currentSystemAction = null;
+      disablePanelButtons(false);
+    }
+  }
+
+  document.getElementById('update-panel-btn').onclick = () => startPanelAction('update');
+  document.getElementById('open-uninstall-modal-btn').onclick = () => {
+    if (document.getElementById('open-uninstall-modal-btn').disabled) return;
+    window.location.hash = 'uninstall-confirm';
+  };
+  document.getElementById('confirm-uninstall-btn').onclick = () => startPanelAction('uninstall');
+
   function escHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
