@@ -6,323 +6,789 @@
   <title>Bot Hosting Panel</title>
   <style>
     :root {
-      --bg:      #0d1117;
-      --surface: #161b22;
-      --border:  #30363d;
-      --accent:  #238636;
-      --accent2: #1f6feb;
-      --danger:  #da3633;
-      --warn:    #d29922;
-      --text:    #e6edf3;
-      --muted:   #8b949e;
-      --radius:  8px;
+      --bg: #070b14;
+      --bg-elev: #0f1628;
+      --surface: #111a2e;
+      --surface-soft: #18233d;
+      --border: #233454;
+      --text: #e8efff;
+      --muted: #9badcf;
+      --accent: #4f8cff;
+      --accent-2: #7b5cff;
+      --success: #2ecc71;
+      --danger: #ff5d73;
+      --warn: #ffc857;
+      --radius: 16px;
+      --shadow: 0 12px 30px rgba(4, 12, 26, 0.4);
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
 
-    /* ── NAV ─────────────────────────────────────────────── */
-    nav {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 28px;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; overflow-x: hidden; }
+    body {
+      background:
+        radial-gradient(circle at 15% 0%, rgba(79,140,255,.12), transparent 35%),
+        radial-gradient(circle at 85% 0%, rgba(123,92,255,.14), transparent 38%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, "Segoe UI", system-ui, sans-serif;
+      min-height: 100vh;
+      animation: fade-in .45s ease;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    a { color: inherit; }
+
+    .nav-toggle {
+      position: fixed;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      background: rgba(12, 19, 34, 0.9);
+      backdrop-filter: blur(12px);
+      border-right: 1px solid var(--border);
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: var(--shadow);
+      z-index: 40;
+    }
+
+    .sidebar-brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: .2px;
     }
-    nav .logo { font-size: 1.35rem; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
-    nav .logo span { color: #58a6ff; }
-    nav .tagline { color: var(--muted); font-size: 0.82rem; margin-left: auto; }
-    nav .logout-btn {
-      background: #21262d; border: 1px solid var(--border); color: var(--text);
-      padding: 6px 14px; border-radius: 6px; font-size: .82rem; cursor: pointer;
-      margin-left: 12px; transition: opacity .18s;
-    }
-    nav .logout-btn:hover { opacity: .7; }
 
-    /* ── MAIN ────────────────────────────────────────────── */
-    main { max-width: 1100px; margin: 0 auto; padding: 32px 20px; flex: 1; }
-
-    /* ── UPLOAD CARD ─────────────────────────────────────── */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px 28px;
-      margin-bottom: 28px;
-    }
-    .card h2 { font-size: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 18px; }
-
-    .upload-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
-    .field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 200px; }
-    .field label { font-size: .85rem; color: var(--muted); }
-    .field input[type="text"], .field input[type="file"] {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      padding: 9px 13px;
-      font-size: .92rem;
-      outline: none;
-      transition: border-color .2s;
-    }
-    .field input:focus { border-color: #58a6ff; }
-    .field input[type="file"] { cursor: pointer; }
-
-    /* ── BUTTONS ─────────────────────────────────────────── */
-    .btn {
+    .brand-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 6px;
-      font-size: .85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity .18s, transform .1s;
-      white-space: nowrap;
-    }
-    .btn:hover  { opacity: .85; }
-    .btn:active { transform: scale(.97); }
-    .btn-primary  { background: var(--accent);  color: #fff; }
-    .btn-blue     { background: var(--accent2); color: #fff; }
-    .btn-warn     { background: var(--warn);    color: #000; }
-    .btn-danger   { background: var(--danger);  color: #fff; }
-    .btn-ghost    { background: #21262d;        color: var(--text); border: 1px solid var(--border); }
-    .btn-sm       { padding: 5px 11px; font-size: .78rem; }
-
-    /* ── PROGRESS ────────────────────────────────────────── */
-    .progress-wrap { display: none; align-items: center; gap: 12px; margin-top: 14px; }
-    .progress-wrap.show { display: flex; }
-    .progress-bar-bg {
-      flex: 1; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden;
-    }
-    .progress-bar-fill {
-      height: 100%; width: 0%; background: #58a6ff;
-      border-radius: 99px; transition: width .3s;
-      animation: pulse-bar 1.5s ease-in-out infinite;
-    }
-    @keyframes pulse-bar { 0%,100%{opacity:1} 50%{opacity:.5} }
-    .progress-label { font-size:.8rem; color: var(--muted); }
-
-    /* ── TOAST ───────────────────────────────────────────── */
-    #toast {
-      position: fixed; bottom: 24px; right: 24px;
-      background: #1c2128; border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 12px 20px;
-      font-size: .9rem;
-      transform: translateY(80px); opacity: 0;
-      transition: all .3s;
-      z-index: 9999;
-      max-width: 340px;
-    }
-    #toast.show { transform: translateY(0); opacity: 1; }
-    #toast.success { border-left: 4px solid var(--accent); }
-    #toast.error   { border-left: 4px solid var(--danger); }
-    #toast.info    { border-left: 4px solid var(--accent2); }
-
-    /* ── TABLE ───────────────────────────────────────────── */
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-    thead tr { border-bottom: 2px solid var(--border); }
-    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
-    tbody tr:hover { background: #1c2128; }
-    th { padding: 11px 14px; text-align: left; color: var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.5px; }
-    td { padding: 13px 14px; vertical-align: middle; }
-
-    .actions { display: flex; gap: 7px; flex-wrap: wrap; }
-
-    /* ── STATUS BADGE ────────────────────────────────────── */
-    .badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 99px;
-      font-size: .75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .4px;
-    }
-    .badge-running { background: #1a4731; color: #3fb950; }
-    .badge-stopped { background: #2a1f1f; color: #f85149; }
-    .badge-error   { background: #2d1f1f; color: var(--warn); }
-    .badge-building{ background: #1c2948; color: #58a6ff; }
-
-    /* ── EMPTY STATE ─────────────────────────────────────── */
-    .empty-state {
-      text-align: center; padding: 48px 20px; color: var(--muted);
-    }
-    .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
-    .empty-state p { font-size: .95rem; }
-
-    /* ── MODAL ───────────────────────────────────────────── */
-    .modal-overlay {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.72);
-      z-index: 1000;
-      align-items: center;
       justify-content: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 8px 18px rgba(79, 140, 255, .4);
     }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--surface);
+
+    .sidebar small {
+      color: var(--muted);
+      line-height: 1.5;
+      display: block;
+    }
+
+    .sidebar-nav {
+      display: grid;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .sidebar-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      transition: .2s ease;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: .95rem;
+    }
+
+    .sidebar-nav a:hover {
+      color: var(--text);
+      border-color: var(--border);
+      background: rgba(123, 92, 255, 0.08);
+      transform: translateX(2px);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(24, 35, 61, 0.65);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      width: min(820px, 95vw);
-      max-height: 86vh;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.55;
+    }
+
+    .sidebar-footer a {
+      color: #91b8ff;
+      text-decoration: none;
+      word-break: break-word;
+    }
+
+    .sidebar-footer a:hover { text-decoration: underline; }
+
+    .app-main {
+      min-width: 0;
       display: flex;
       flex-direction: column;
     }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 25;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 20px;
+      background: rgba(10, 16, 31, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .menu-btn {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      color: var(--text);
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.15rem;
+      user-select: none;
+      transition: .2s ease;
+    }
+
+    .menu-btn:hover { border-color: #3d578b; transform: translateY(-1px); }
+
+    .page-heading {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .page-heading h1 {
+      font-size: clamp(1.05rem, 1.7vw, 1.3rem);
+      font-weight: 700;
+      letter-spacing: .3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .page-heading p {
+      color: var(--muted);
+      font-size: .82rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .logout-btn {
+      background: #1c2744;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: .2s ease;
+      min-height: 40px;
+    }
+
+    .logout-btn:hover { border-color: #4464a1; transform: translateY(-1px); }
+
+    main {
+      width: min(1220px, 100%);
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      gap: 18px;
+      flex: 1;
+    }
+
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat-pill {
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: linear-gradient(160deg, rgba(18, 29, 53, .95), rgba(12, 21, 39, .95));
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      min-height: 64px;
+    }
+
+    .stat-pill span {
+      color: var(--muted);
+      font-size: .82rem;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .stat-pill strong { font-size: 1rem; }
+
+    .card {
+      background: linear-gradient(165deg, rgba(20, 31, 56, .92), rgba(13, 22, 40, .92));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      transition: transform .2s ease, border-color .2s ease;
+      min-width: 0;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: #375089;
+    }
+
+    .card h2 {
+      font-size: .88rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 14px;
+    }
+
+    .upload-form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .field label {
+      font-size: .82rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .55px;
+    }
+
+    .field input[type="text"], .field input[type="file"] {
+      width: 100%;
+      background: #0d1730;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      padding: 11px 13px;
+      font-size: .92rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .field input:focus {
+      border-color: #5f8eff;
+      box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.2);
+    }
+
+    .field input[type="file"] { cursor: pointer; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: none;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
+      white-space: nowrap;
+      min-height: 44px;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 8px 18px rgba(2, 7, 18, .35);
+    }
+
+    .btn:active { transform: translateY(0) scale(.98); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+    }
+
+    .btn-blue { background: #2f6fe4; color: #fff; }
+    .btn-warn { background: #f3bd43; color: #231a05; }
+    .btn-danger { background: #d84058; color: #fff; }
+    .btn-ghost {
+      background: #1a2747;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-sm {
+      padding: 8px 12px;
+      font-size: .78rem;
+      min-height: 36px;
+      border-radius: 10px;
+    }
+
+    .progress-wrap {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .progress-wrap.show { display: flex; }
+
+    .progress-bar-bg {
+      flex: 1;
+      height: 8px;
+      background: #20345f;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: 99px;
+      transition: width .3s;
+      animation: pulse-bar 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-bar { 0%,100%{opacity:1} 50%{opacity:.55} }
+
+    .progress-label {
+      font-size: .8rem;
+      color: var(--muted);
+      min-width: 110px;
+      text-align: right;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid rgba(49, 68, 109, .55);
+      border-radius: 14px;
+      background: rgba(11, 18, 33, .6);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+
+    thead tr {
+      border-bottom: 1px solid var(--border);
+      background: rgba(16, 27, 49, .8);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(35, 52, 84, .65);
+      transition: background .2s ease;
+    }
+
+    tbody tr:hover { background: rgba(36, 54, 88, .3); }
+
+    th {
+      padding: 12px 14px;
+      text-align: left;
+      color: #9db1da;
+      font-size: .74rem;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+
+    td {
+      padding: 13px 14px;
+      vertical-align: middle;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      border: 1px solid transparent;
+    }
+
+    .badge-running { background: rgba(46, 204, 113, .12); color: #62e39d; border-color: rgba(46, 204, 113, .35); }
+    .badge-stopped { background: rgba(255, 93, 115, .1); color: #ff8698; border-color: rgba(255, 93, 115, .34); }
+    .badge-error { background: rgba(255, 200, 87, .12); color: #ffd985; border-color: rgba(255, 200, 87, .4); }
+    .badge-building { background: rgba(79, 140, 255, .12); color: #8ab3ff; border-color: rgba(79, 140, 255, .35); }
+
+    .empty-state {
+      text-align: center;
+      padding: 42px 16px;
+      color: var(--muted);
+    }
+
+    .empty-state .icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 7, 14, .74);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: linear-gradient(160deg, #121d35, #0e172c);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: min(860px, 100%);
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow);
+    }
+
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 18px 22px;
+      padding: 16px 18px;
       border-bottom: 1px solid var(--border);
     }
+
     .modal-header h3 { font-size: 1rem; }
+
     .modal-close {
-      background: none; border: none; color: var(--muted);
-      font-size: 1.4rem; cursor: pointer; line-height: 1;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 1.35rem;
+      cursor: pointer;
+      line-height: 1;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
     }
-    .modal-close:hover { color: var(--text); }
-    .modal-body { padding: 20px 22px; overflow-y: auto; flex: 1; }
+
+    .modal-close:hover { color: var(--text); background: rgba(30, 46, 79, .8); }
+
+    .modal-body {
+      padding: 16px 18px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
     pre#log-output {
-      background: #010409;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 16px;
-      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      background: #070d1c;
+      border: 1px solid #20345f;
+      border-radius: 12px;
+      padding: 14px;
+      font-family: "Cascadia Code", "Fira Code", monospace;
       font-size: .8rem;
-      color: #7ee787;
+      color: #89f0b5;
       white-space: pre-wrap;
       word-break: break-all;
-      min-height: 200px;
-      max-height: 55vh;
+      min-height: 220px;
+      max-height: 58vh;
       overflow-y: auto;
     }
+
     .modal-footer {
-      padding: 14px 22px;
+      padding: 13px 18px;
       border-top: 1px solid var(--border);
       display: flex;
       gap: 10px;
       justify-content: flex-end;
     }
 
-    /* ── HEADER STATS ─────────────────────────────────────── */
-    .stats-bar {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-    .stat-pill {
-      background: var(--surface);
+    #toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      background: #14213c;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 10px 18px;
-      font-size: .85rem;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: .9rem;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all .3s;
+      z-index: 1100;
+      max-width: 340px;
+      box-shadow: var(--shadow);
     }
-    .stat-pill span { color: var(--muted); }
-    .stat-pill strong { color: var(--text); margin-left: 6px; }
 
-    /* ── FOOTER ──────────────────────────────────────────── */
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-left: 4px solid var(--success); }
+    #toast.error { border-left: 4px solid var(--danger); }
+    #toast.info { border-left: 4px solid var(--accent); }
+
     .footer {
-      background: var(--surface);
-      border-top: 1px solid var(--border);
       text-align: center;
-      padding: 20px 16px;
+      padding: 16px 12px 22px;
       color: var(--muted);
-      font-size: .8rem;
-      line-height: 1.8;
+      font-size: .79rem;
+      line-height: 1.75;
     }
+
     .footer a {
-      color: #58a6ff;
+      color: #8db4ff;
       text-decoration: none;
     }
-    .footer a:hover { text-decoration: underline; }
-    .footer .heart { color: #da3633; font-size: 1rem; }
-    .footer .channels { margin-top: 4px; }
 
-    @media (max-width: 600px) {
-      .upload-form { flex-direction: column; }
-      .actions { flex-direction: column; }
-      td, th { padding: 10px 8px; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 1024px) {
+      .stats-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .upload-form { grid-template-columns: 1fr 1fr; }
+      .upload-form .btn { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 860px) {
+      .app-shell { grid-template-columns: 1fr; }
+
+      .menu-btn { display: inline-flex; }
+
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: min(84vw, 300px);
+        height: 100vh;
+        transform: translateX(-102%);
+        transition: transform .28s ease;
+      }
+
+      .nav-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(5, 10, 20, .5);
+        z-index: 30;
+      }
+
+      #nav-toggle:checked ~ .app-shell .sidebar { transform: translateX(0); }
+      #nav-toggle:checked ~ .nav-backdrop { display: block; }
+
+      main { padding: 16px; }
+      .topbar { padding: 12px 14px; }
+    }
+
+    @media (max-width: 680px) {
+      .stats-bar { grid-template-columns: 1fr; }
+      .upload-form { grid-template-columns: 1fr; }
+
+      .progress-wrap {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .progress-label {
+        text-align: left;
+        min-width: 0;
+      }
+
+      .table-wrap {
+        overflow: visible;
+        border: none;
+        background: transparent;
+      }
+
+      table, thead, tbody, tr, td { display: block; width: 100%; }
+      thead { display: none; }
+      tbody { display: grid; gap: 12px; }
+
+      tbody tr {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: rgba(16, 27, 49, .78);
+        padding: 6px;
+      }
+
+      tbody tr:hover { background: rgba(23, 36, 61, .85); }
+
+      td {
+        border: 0;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      td::before {
+        color: #8ea5d6;
+        font-size: .72rem;
+        text-transform: uppercase;
+        letter-spacing: .7px;
+      }
+
+      td:nth-child(1)::before { content: "Bot Name"; }
+      td:nth-child(2)::before { content: "Status"; }
+      td:nth-child(3)::before { content: "Entry File"; }
+      td:nth-child(4)::before { content: "Deployed At"; }
+      td:nth-child(5)::before { content: "Actions"; }
+
+      .actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .actions .btn {
+        width: 100%;
+        min-height: 40px;
+      }
     }
   </style>
 </head>
 <body>
-
-<nav>
-  <div class="logo">&#x1F916; <span>Bot</span>Panel</div>
-  <div class="tagline">Self-Hosted Telegram Bot Manager</div>
-  <button class="logout-btn" onclick="logout()">Logout</button>
-</nav>
-
-<main>
-  <!-- Stats bar -->
-  <div class="stats-bar" id="stats-bar">
-    <div class="stat-pill"><span>Total Bots:</span><strong id="stat-total">&mdash;</strong></div>
-    <div class="stat-pill"><span>Running:</span><strong id="stat-running" style="color:#3fb950">&mdash;</strong></div>
-    <div class="stat-pill"><span>Stopped:</span><strong id="stat-stopped" style="color:#f85149">&mdash;</strong></div>
-    <div class="stat-pill"><span>Server:</span><strong style="color:#58a6ff">Online &#x2713;</strong></div>
-  </div>
-
-  <!-- Upload card -->
-  <div class="card">
-    <h2>&#x2795; Deploy New Bot</h2>
-    <form class="upload-form" id="upload-form" enctype="multipart/form-data">
-      <div class="field">
-        <label for="bot-name">Bot Name</label>
-        <input type="text" id="bot-name" name="bot_name" placeholder="my_telegram_bot" required maxlength="60"/>
-      </div>
-      <div class="field">
-        <label for="bot-file">Bot File (.py or .zip)</label>
-        <input type="file" id="bot-file" name="file" accept=".py,.zip" required/>
-      </div>
-      <button type="submit" class="btn btn-primary" id="upload-btn">
-        &#x2B06; Upload &amp; Deploy
-      </button>
-    </form>
-    <div class="progress-wrap" id="progress-wrap">
-      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
-      <div class="progress-label" id="progress-label">Building image&hellip;</div>
+<input type="checkbox" id="nav-toggle" class="nav-toggle" aria-hidden="true"/>
+<div class="app-shell">
+  <aside class="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar-brand">
+      <span class="brand-badge">&#x1F916;</span>
+      <span>BotPanel</span>
     </div>
-  </div>
+    <small>Self-Hosted Telegram Bot Manager</small>
 
-  <!-- Bot list card -->
-  <div class="card">
-    <h2>&#x1F4CB; Deployed Bots</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Status</th>
-            <th>Entry File</th>
-            <th>Deployed At</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="bot-table-body">
-          <tr><td colspan="5"><div class="empty-state"><div class="icon">&#x1F916;</div><p>Loading bots&hellip;</p></div></td></tr>
-        </tbody>
-      </table>
+    <nav class="sidebar-nav">
+      <a href="#stats-bar">&#x1F4CA; Overview</a>
+      <a href="#upload-form">&#x2795; Deploy Bot</a>
+      <a href="#bot-table-body">&#x1F9E9; Bot Controls</a>
+      <a href="#modal-title">&#x1F4C4; Logs</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      Made by lonefaisal and true professor<br/>
+      <a href="https://t.me/lonefaisal" target="_blank" rel="noopener noreferrer">https://t.me/lonefaisal</a><br/>
+      <a href="https://t.me/trueprofessor" target="_blank" rel="noopener noreferrer">https://t.me/trueprofessor</a>
     </div>
-  </div>
-</main>
+  </aside>
 
-<!-- Branded footer -->
-<footer class="footer">
-  Made with <span class="heart">&hearts;</span> by
-  <a href="https://t.me/lonefaisal" target="_blank">LONE FAISAL</a> &amp;
-  <a href="https://t.me/trueprofessor" target="_blank">Professor</a>
-  <div class="channels">
-    &#x2726; <a href="https://t.me/arrow_network" target="_blank">Arrow Network</a> &nbsp;&nbsp;
-    &#x2726; <a href="https://t.me/kmri_network_reborn" target="_blank">KMRI Network</a>
+  <div class="app-main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <label class="menu-btn" for="nav-toggle" aria-label="Toggle sidebar">&#9776;</label>
+        <div class="page-heading">
+          <h1>Bot Management Dashboard</h1>
+          <p>Modern control center for deploying and managing your Telegram bots</p>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </header>
+
+    <main>
+      <!-- Stats bar -->
+      <div class="stats-bar" id="stats-bar">
+        <div class="stat-pill"><span>Total Bots:</span><strong id="stat-total">&mdash;</strong></div>
+        <div class="stat-pill"><span>Running:</span><strong id="stat-running" style="color:#62e39d">&mdash;</strong></div>
+        <div class="stat-pill"><span>Stopped:</span><strong id="stat-stopped" style="color:#ff8ea2">&mdash;</strong></div>
+        <div class="stat-pill"><span>Server:</span><strong style="color:#8ab3ff">Online &#x2713;</strong></div>
+      </div>
+
+      <!-- Upload card -->
+      <div class="card">
+        <h2>&#x2795; Deploy New Bot</h2>
+        <form class="upload-form" id="upload-form" enctype="multipart/form-data">
+          <div class="field">
+            <label for="bot-name">Bot Name</label>
+            <input type="text" id="bot-name" name="bot_name" placeholder="my_telegram_bot" required maxlength="60"/>
+          </div>
+          <div class="field">
+            <label for="bot-file">Bot File (.py or .zip)</label>
+            <input type="file" id="bot-file" name="file" accept=".py,.zip" required/>
+          </div>
+          <button type="submit" class="btn btn-primary" id="upload-btn">
+            &#x2B06; Upload &amp; Deploy
+          </button>
+        </form>
+        <div class="progress-wrap" id="progress-wrap">
+          <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+          <div class="progress-label" id="progress-label">Building image&hellip;</div>
+        </div>
+      </div>
+
+      <!-- Bot list card -->
+      <div class="card">
+        <h2>&#x1F4CB; Deployed Bots</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Entry File</th>
+                <th>Deployed At</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bot-table-body">
+              <tr><td colspan="5"><div class="empty-state"><div class="icon">&#x1F916;</div><p>Loading bots&hellip;</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      Made by lonefaisal and true professor
+    </footer>
   </div>
-</footer>
+</div>
+<label class="nav-backdrop" for="nav-toggle" aria-hidden="true"></label>
 
 <!-- Logs modal -->
 <div class="modal-overlay" id="modal-overlay">
@@ -508,13 +974,13 @@
     btn.disabled = true;
     pw.classList.add('show');
     pf.style.width = '15%';
-    pl.textContent = 'Uploading\u2026';
+    pl.textContent = 'Uploading…';
 
     const steps = [
-      [30,  'Extracting files\u2026'],
-      [55,  'Writing Dockerfile\u2026'],
-      [75,  'Building Docker image\u2026'],
-      [92,  'Starting container\u2026'],
+      [30,  'Extracting files…'],
+      [55,  'Writing Dockerfile…'],
+      [75,  'Building Docker image…'],
+      [92,  'Starting container…'],
     ];
     let si = 0;
     const ticker = setInterval(() => {
@@ -547,7 +1013,7 @@
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
   function fmtDate(s) {
-    if (!s) return '\u2014';
+    if (!s) return '—';
     const d = new Date(s + 'Z');
     return isNaN(d) ? s : d.toLocaleString();
   }
