@@ -123,6 +123,7 @@
     color: var(--muted);
     text-decoration: none;
     padding: 11px 14px;
+    min-height: 44px;
     border-radius: 14px;
     border: 1px solid transparent;
     transition: .2s ease;
@@ -476,7 +477,7 @@
 
   tbody {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 14px;
   }
 
@@ -853,7 +854,7 @@
     #nav-toggle:checked ~ .nav-backdrop { display: block; }
 
     .topbar { padding: 12px 14px; }
-    main { padding: 16px; }
+    main { padding: 14px; }
 
     .about-overlay { align-items: end; }
     .about-modal {
@@ -877,16 +878,31 @@
   @media (max-width: 680px) {
     .stats-bar { grid-template-columns: 1fr; }
     .upload-form { grid-template-columns: 1fr; }
+    .upload-form .btn { width: 100%; }
     .progress-wrap { flex-direction: column; align-items: stretch; }
     .progress-label { text-align: left; min-width: 0; }
-    .actions { grid-template-columns: 1fr 1fr; }
+    .actions { grid-template-columns: 1fr; }
     .about-grid { grid-template-columns: 1fr; }
     .panel-settings-grid { grid-template-columns: 1fr; }
+    .card { padding: 16px; border-radius: 18px; }
+    .btn { min-height: 48px; }
+    .setting-action .btn { width: 100%; }
+    .setting-command code,
+    .confirm-command-list code {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .page-heading p { display: none; }
+    .page-heading h1 { white-space: normal; line-height: 1.35; }
+    .confirm-actions,
+    .modal-footer { flex-direction: column; }
+    .confirm-actions .btn,
+    .modal-footer .btn { width: 100%; }
   }
 
   @media (max-width: 420px) {
-    .actions { grid-template-columns: 1fr; }
-    .btn { min-height: 46px; }
+    .sidebar { width: min(82vw, 280px); padding: 20px 16px; }
     tbody { grid-template-columns: 1fr; }
   }
 </style>
@@ -903,11 +919,9 @@
     <span class="version-pill">v1.0</span>
 
     <nav class="sidebar-nav">
-      <a href="#stats-bar">&#x1F4CA; Overview</a>
       <a href="#upload-form">&#x2795; Deploy Bot</a>
-      <a href="#bot-table-body">&#x1F9E9; Bot Controls</a>
+      <a href="#bot-table-body">&#x1F9E9; Deployed Bots</a>
       <a href="#panel-settings">&#9881;&#xFE0F; Panel Settings</a>
-      <a href="#modal-title">&#x1F4C4; Logs</a>
       <a href="#about-modal">&#x2139;&#xFE0F; About Panel</a>
     </nav>
 
