@@ -159,24 +159,13 @@ sudo /opt/botpanel/venv/bin/python /opt/botpanel/set_password.py
 
 ## Screenshots
 
-No screenshots are currently committed in this repository.
-Use the placeholders below and replace them with real images when available.
 
-```text
-docs/screenshots/dashboard.png
-docs/screenshots/deploy-form.png
-docs/screenshots/bot-controls.png
-docs/screenshots/log-modal.png
-```
 
-Example markdown you can use after adding files:
+<img width="1919" height="912" alt="dashboard" src="https://github.com/user-attachments/assets/403e4fa7-3751-4556-b494-d129178e694f" />
 
-```md
-![Dashboard](docs/screenshots/dashboard.png)
-![Deploy Form](docs/screenshots/deploy-form.png)
-![Bot Controls](docs/screenshots/bot-controls.png)
-![Log Modal](docs/screenshots/log-modal.png)
-```
+
+
+
 
 ## Branding & Contact
 
