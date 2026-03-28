@@ -3,7 +3,6 @@
 <p align="center">
   <img src="https://img.shields.io/github/stars/lonefaisal7/botpanel?style=for-the-badge" />
   <img src="https://img.shields.io/github/forks/lonefaisal7/botpanel?style=for-the-badge" />
-  <img src="https://img.shields.io/github/license/lonefaisal7/botpanel?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Docker-Required-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
 </p>
