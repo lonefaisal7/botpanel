@@ -294,6 +294,108 @@
     margin-bottom: 14px;
   }
 
+  .panel-settings-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .setting-card {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: linear-gradient(155deg, rgba(19, 30, 54, 0.92), rgba(12, 20, 37, 0.92));
+    padding: 16px;
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+    transition: transform .2s ease, border-color .2s ease;
+  }
+
+  .setting-card:hover { transform: translateY(-2px); border-color: rgba(90, 162, 255, 0.52); }
+
+  .setting-card-danger {
+    border-color: rgba(255, 91, 121, 0.42);
+    background: linear-gradient(155deg, rgba(52, 20, 34, 0.78), rgba(25, 11, 20, 0.85));
+  }
+
+  .setting-card-danger:hover { border-color: rgba(255, 91, 121, 0.75); }
+
+  .setting-card h3 {
+    font-family: "Poppins", "Inter", sans-serif;
+    font-size: .96rem;
+    font-weight: 600;
+    letter-spacing: .2px;
+  }
+
+  .setting-desc {
+    font-size: .86rem;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .setting-command {
+    display: grid;
+    gap: 8px;
+  }
+
+  .setting-command-label {
+    font-size: .72rem;
+    color: #a7b8dc;
+    text-transform: uppercase;
+    letter-spacing: .65px;
+  }
+
+  .setting-command code {
+    display: block;
+    width: 100%;
+    font-family: "Cascadia Code", "Fira Code", monospace;
+    font-size: .78rem;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(90, 162, 255, 0.32);
+    background: rgba(7, 13, 28, 0.9);
+    color: #9bc3ff;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .setting-card-danger .setting-command code {
+    border-color: rgba(255, 91, 121, 0.35);
+    color: #ffb0bf;
+  }
+
+  .setting-note {
+    font-size: .79rem;
+    color: #a9c0ee;
+    line-height: 1.5;
+    border-left: 2px solid rgba(90, 162, 255, 0.45);
+    padding-left: 10px;
+  }
+
+  .setting-warning {
+    font-size: .79rem;
+    color: #ffd3dc;
+    line-height: 1.5;
+    border-left: 2px solid rgba(255, 91, 121, 0.6);
+    padding-left: 10px;
+  }
+
+  .setting-action {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .btn-danger-alt {
+    background: linear-gradient(135deg, #ff5b79, #cf274c);
+    color: #fff;
+    border: 1px solid rgba(255, 142, 162, 0.45);
+  }
+
+  .btn-danger-alt:hover {
+    box-shadow: 0 10px 24px rgba(176, 23, 58, 0.45);
+    filter: brightness(1.04);
+  }
+
   .upload-form {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
@@ -603,6 +705,90 @@
   .about-card a { color: #9fc2ff; text-decoration: none; font-weight: 600; }
   .about-card a:hover { text-decoration: underline; text-shadow: 0 0 12px rgba(90, 162, 255, 0.35); }
 
+  .confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 5, 11, 0.72);
+    backdrop-filter: blur(4px);
+    z-index: 1060;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    padding: 14px;
+  }
+
+  .confirm-overlay:target { opacity: 1; pointer-events: all; }
+
+  .confirm-modal {
+    width: min(520px, 100%);
+    background: linear-gradient(165deg, rgba(42, 14, 26, 0.98), rgba(17, 11, 22, 0.98));
+    border: 1px solid rgba(255, 91, 121, 0.38);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    transform: scale(.96) translateY(8px);
+    opacity: 0;
+    transition: transform .25s ease, opacity .25s ease;
+    overflow: hidden;
+  }
+
+  .confirm-overlay:target .confirm-modal { transform: scale(1) translateY(0); opacity: 1; }
+
+  .confirm-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 18px;
+    border-bottom: 1px solid rgba(255, 91, 121, 0.3);
+  }
+
+  .confirm-head h3 {
+    font-family: "Poppins", "Inter", sans-serif;
+    font-size: .98rem;
+    color: #ffd3dc;
+  }
+
+  .confirm-body {
+    display: grid;
+    gap: 10px;
+    padding: 16px 18px 12px;
+  }
+
+  .confirm-body p {
+    color: #f1b7c4;
+    font-size: .86rem;
+    line-height: 1.55;
+  }
+
+  .confirm-command-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .confirm-command-list code {
+    display: block;
+    width: 100%;
+    font-family: "Cascadia Code", "Fira Code", monospace;
+    font-size: .76rem;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 91, 121, 0.35);
+    background: rgba(16, 9, 17, 0.95);
+    color: #ffb5c3;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 0 18px 18px;
+  }
+
   #toast {
     position: fixed;
     right: 16px;
@@ -677,6 +863,15 @@
     }
 
     .about-overlay:target .about-modal { transform: translateY(0); }
+
+    .confirm-overlay { align-items: end; }
+    .confirm-modal {
+      width: 100%;
+      border-radius: 18px 18px 12px 12px;
+      transform: translateY(18px);
+    }
+
+    .confirm-overlay:target .confirm-modal { transform: translateY(0); }
   }
 
   @media (max-width: 680px) {
@@ -686,6 +881,7 @@
     .progress-label { text-align: left; min-width: 0; }
     .actions { grid-template-columns: 1fr 1fr; }
     .about-grid { grid-template-columns: 1fr; }
+    .panel-settings-grid { grid-template-columns: 1fr; }
   }
 
   @media (max-width: 420px) {
@@ -710,6 +906,7 @@
       <a href="#stats-bar">&#x1F4CA; Overview</a>
       <a href="#upload-form">&#x2795; Deploy Bot</a>
       <a href="#bot-table-body">&#x1F9E9; Bot Controls</a>
+      <a href="#panel-settings">&#9881;&#xFE0F; Panel Settings</a>
       <a href="#modal-title">&#x1F4C4; Logs</a>
       <a href="#about-modal">&#x2139;&#xFE0F; About Panel</a>
     </nav>
@@ -783,12 +980,64 @@
           </table>
         </div>
       </div>
+
+      <div class="card" id="panel-settings">
+        <h2>&#9881;&#xFE0F; Panel Settings</h2>
+        <div class="panel-settings-grid">
+          <article class="setting-card">
+            <h3>&#x1F504; Update Panel</h3>
+            <p class="setting-desc">Pull latest code and restart service.</p>
+            <div class="setting-command">
+              <span class="setting-command-label">Command</span>
+              <code>sudo bash /opt/botpanel/update.sh</code>
+            </div>
+            <p class="setting-note">Preserves bot data, database, credentials.</p>
+            <div class="setting-action">
+              <button type="button" class="btn btn-primary">Update Panel</button>
+            </div>
+          </article>
+
+          <article class="setting-card setting-card-danger">
+            <h3>&#x1F5D1;&#xFE0F; Uninstall Panel</h3>
+            <p class="setting-desc">Completely remove panel, services, containers, images.</p>
+            <div class="setting-command">
+              <span class="setting-command-label">Commands</span>
+              <code>sudo bash /opt/botpanel/uninstall.sh</code>
+              <code>sudo bash /opt/botpanel/uninstall.sh --yes (non-interactive)</code>
+            </div>
+            <p class="setting-warning">This action is destructive. Always review before continuing.</p>
+            <div class="setting-action">
+              <a href="#uninstall-confirm" class="btn btn-danger-alt">Uninstall Panel</a>
+            </div>
+          </article>
+        </div>
+      </div>
     </main>
 
     <footer class="footer">Made by <a href="https://t.me/lonefaisal" target="_blank" rel="noopener noreferrer">LONE FAISAL</a> &amp; <a href="https://t.me/trueprofessor" target="_blank" rel="noopener noreferrer">PROFESSOR</a></footer>
   </div>
 </div>
 <label class="nav-backdrop" for="nav-toggle" aria-hidden="true"></label>
+
+<div id="uninstall-confirm" class="confirm-overlay" aria-modal="true" role="dialog">
+  <div class="confirm-modal">
+    <div class="confirm-head">
+      <h3>Confirm Panel Uninstall</h3>
+      <a href="#panel-settings" class="about-close" aria-label="Close uninstall confirmation">&#x2715;</a>
+    </div>
+    <div class="confirm-body">
+      <p>This will remove panel services, containers, and images. Use only when you are sure you want to fully uninstall the panel.</p>
+      <div class="confirm-command-list">
+        <code>sudo bash /opt/botpanel/uninstall.sh</code>
+        <code>sudo bash /opt/botpanel/uninstall.sh --yes (non-interactive)</code>
+      </div>
+    </div>
+    <div class="confirm-actions">
+      <a href="#panel-settings" class="btn btn-ghost">Cancel</a>
+      <a href="#panel-settings" class="btn btn-danger-alt">I Understand</a>
+    </div>
+  </div>
+</div>
 
 <div id="about-modal" class="about-overlay" aria-modal="true" role="dialog">
   <div class="about-modal">
