@@ -3,6 +3,7 @@
 <p align="center">
   <img src="https://img.shields.io/github/stars/lonefaisal7/botpanel?style=for-the-badge" />
   <img src="https://img.shields.io/github/forks/lonefaisal7/botpanel?style=for-the-badge" />
+  <img src="https://img.shields.io/github/license/lonefaisal7/botpanel?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Docker-Required-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
 </p>
@@ -25,14 +26,14 @@ A modern, production-ready system to **deploy, manage, and monitor multiple Tele
 
 ## 🧠 Why Choose Bot Hosting Panel?
 
-| Feature | This Panel | Typical Panels |
-|--------|-----------|---------------|
-| Full Ownership | ✅ | ❌ |
-| Docker Isolation | ✅ | ⚠️ Limited |
-| No Subscription | ✅ | ❌ |
-| Easy Deployment | ✅ | ⚠️ Complex |
-| Open Source | ✅ | ❌ |
-| Lightweight | ✅ | ❌ |
+| Feature          | This Panel | Typical Panels |
+| ---------------- | ---------- | -------------- |
+| Full Ownership   | ✅          | ❌              |
+| Docker Isolation | ✅          | ⚠️ Limited     |
+| No Subscription  | ✅          | ❌              |
+| Easy Deployment  | ✅          | ⚠️ Complex     |
+| Open Source      | ✅          | ❌              |
+| Lightweight      | ✅          | ❌              |
 
 👉 Built for developers who want **control, simplicity, and performance** — without SaaS limitations.
 
@@ -40,12 +41,12 @@ A modern, production-ready system to **deploy, manage, and monitor multiple Tele
 
 ## ✨ Highlights
 
-- 🧠 Fully self-hosted — no third-party dependency
-- 🐳 Docker-based isolation per bot
-- ⚡ FastAPI backend (high performance)
-- 🎛️ Clean and responsive UI
-- 🔐 Secure authentication system
-- 📦 One-command install & update
+* 🧠 Fully self-hosted — no third-party dependency
+* 🐳 Docker-based isolation per bot
+* ⚡ FastAPI backend (high performance)
+* 🎛️ Clean and responsive UI
+* 🔐 Secure authentication system
+* 📦 One-command install & update
 
 ---
 
@@ -55,35 +56,39 @@ A modern, production-ready system to **deploy, manage, and monitor multiple Tele
 User → Web UI → FastAPI → Docker Containers → Telegram Bots
 ```
 
-- Each bot runs in its **own isolated container**
-- Panel controls lifecycle + logs + deployment
-- SQLite used (no external DB needed)
+* Each bot runs in its **own isolated container**
+* Panel controls lifecycle + logs + deployment
+* SQLite used (no external DB needed)
 
 ---
 
 ## 🔥 Features
 
 ### 🖥️ Dashboard
-- Secure JWT authentication
-- Upload `.py` / `.zip`
-- Live bot logs viewer
-- Auto-refresh UI
+
+* Secure JWT authentication
+* Upload `.py` / `.zip`
+* Live bot logs viewer
+* Auto-refresh UI
 
 ### 🐳 Runtime
-- One container per bot
-- Auto dependency install
-- Resource limits (CPU / RAM)
+
+* One container per bot
+* Auto dependency install
+* Resource limits (CPU / RAM)
 
 ### 🔐 Security
-- Bcrypt password hashing
-- Token-based API protection
-- File validation + sanitization
+
+* Bcrypt password hashing
+* Token-based API protection
+* File validation + sanitization
 
 ### ⚙️ DevOps
-- One-command install
-- Update script
-- Clean uninstall
-- systemd service support
+
+* One-command install
+* Update script
+* Clean uninstall
+* systemd service support
 
 ---
 
@@ -153,36 +158,48 @@ sudo bash /opt/botpanel/uninstall.sh --yes
 
 ---
 
-# 👨‍💻 CREDITS
+## 👨‍💻 Authors
 
 <p align="center">
-  <a href="https://t.me/lonefaisal">
-    <img src="https://img.shields.io/badge/LONE_FAISAL-00f7ff?style=for-the-badge&logo=telegram">
-  </a>
-  <a href="https://t.me/TrueProfessor">
-    <img src="https://img.shields.io/badge/Professor-8a2be2?style=for-the-badge&logo=telegram">
-  </a>
+  <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" width="80" />
 </p>
 
 <p align="center">
-📢 Channels<br>
-<a href="https://t.me/arrow_network">ARROW NETWORK</a> • 
-<a href="https://t.me/kmri_network_reborn">KMRI NETWORK</a>
+  <b>LONE FAISAL</b><br>
+  <a href="https://t.me/lonefaisal">https://t.me/lonefaisal</a>
+</p>
+
+<p align="center">
+  <b>PROFESSOR</b><br>
+  <a href="https://t.me/trueprofessor">https://t.me/trueprofessor</a>
 </p>
 
 ---
 
----
-
-# ⭐ SUPPORT
+## 📢 Community
 
 <p align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?size=22&duration=2500&color=00FF88&center=true&vCenter=true&width=700&lines=⭐+Star+this+repo+if+you+like+it;🚀+Contribute+and+improve;🔥+Built+for+power+users" />
+  <img src="https://img.shields.io/badge/Join%20ARROW%20NETWORK-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" />
+  <img src="https://img.shields.io/badge/Join%20KMRI%20NETWORK-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" />
 </p>
+
+<p align="center">
+  <a href="https://t.me/arrow_network">🔗 ARROW NETWORK</a><br>
+  <a href="https://t.me/kmri_network_reborn">🔗 KMRI NETWORK</a>
+</p>
+
+---
+
+## ⭐ Support
+
+If this project helps you:
+
+⭐ Star the repo
+🔁 Share it
+🛠️ Contribute improvements
 
 ---
 
 ## 📄 License
 
 MIT License
-
