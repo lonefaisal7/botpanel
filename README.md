@@ -153,30 +153,32 @@ sudo bash /opt/botpanel/uninstall.sh --yes
 
 ---
 
-## 👨‍💻 Authors
+# 👨‍💻 CREDITS
 
-**LONE FAISAL**  
-https://t.me/lonefaisal
+<p align="center">
+  <a href="https://t.me/lonefaisal">
+    <img src="https://img.shields.io/badge/LONE_FAISAL-00f7ff?style=for-the-badge&logo=telegram">
+  </a>
+  <a href="https://t.me/TrueProfessor">
+    <img src="https://img.shields.io/badge/Professor-8a2be2?style=for-the-badge&logo=telegram">
+  </a>
+</p>
 
-**PROFESSOR**  
-https://t.me/trueprofessor
+<p align="center">
+📢 Channels<br>
+<a href="https://t.me/arrow_network">ARROW NETWORK</a> • 
+<a href="https://t.me/kmri_network_reborn">KMRI NETWORK</a>
+</p>
 
 ---
 
-## 📢 Community
-
-- https://t.me/arrow_network  
-- https://t.me/kmri_network_reborn
-
 ---
 
-## ⭐ Support
+# ⭐ SUPPORT
 
-If this project helps you:
-
-⭐ Star the repo  
-🔁 Share it  
-🛠️ Contribute improvements
+<p align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?size=22&duration=2500&color=00FF88&center=true&vCenter=true&width=700&lines=⭐+Star+this+repo+if+you+like+it;🚀+Contribute+and+improve;🔥+Built+for+power+users" />
+</p>
 
 ---
 
