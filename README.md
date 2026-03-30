@@ -62,19 +62,23 @@ Run and control multiple bots with <b>full server ownership</b><br><br>
 
 <br>
 
-<h2>⚡ Quick Install</h2>
+## ⚡ Quick Install
 
-<pre>
+```bash
 curl -sSL https://raw.githubusercontent.com/lonefaisal7/botpanel/main/setup.sh | sudo bash
-</pre>
+```
 
-<p>🌐 http://YOUR_VPS_IP:8000</p>
+Then open:
 
-<br>
+```
+http://YOUR_VPS_IP:8000
+```
 
-<h2>🛠️ Manual Setup</h2>
+---
 
-<pre>
+## 🛠️ Manual Setup
+
+```bash
 git clone https://github.com/lonefaisal7/botpanel
 cd botpanel
 
@@ -84,9 +88,9 @@ pip install -r requirements.txt
 
 chmod +x run.sh
 ./run.sh
-</pre>
+```
 
-<br>
+
 
 <h2>🧰 Commands</h2>
 
@@ -100,17 +104,17 @@ systemctl restart botpanel
 
 <h2>🔄 Update</h2>
 
-<pre>
+```bash
 sudo bash /opt/botpanel/update.sh
-</pre>
+```
 
 <br>
 
 <h2>🗑️ Uninstall</h2>
 
-<pre>
+```bash
 sudo bash /opt/botpanel/uninstall.sh --yes
-</pre>
+```
 
 <br>
 
