@@ -18,8 +18,33 @@ JOB_ROOT = Path(tempfile.gettempdir()) / "botpanel-system-jobs"
 JOB_ROOT.mkdir(parents=True, exist_ok=True)
 ACTIVE_JOB_FILE = JOB_ROOT / "active_job"
 
-UPDATE_SCRIPT = "/opt/botpanel/update.sh"
-UNINSTALL_SCRIPT = "/opt/botpanel/uninstall.sh"
+# Candidate install roots we search for system scripts. Order: explicit env, /opt default, project root.
+_ENV_ROOT = os.getenv("BOTPANEL_ROOT") or os.getenv("BOT_PANEL_ROOT") or os.getenv("BOTPANEL_INSTALL_DIR")
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SCRIPT_SEARCH_PATHS = [p for p in (_ENV_ROOT, "/opt/botpanel", str(_PROJECT_ROOT)) if p]
+
+
+def _resolve_script(name: str) -> Path:
+    """Find an executable script in the known install locations.
+
+    This makes update/uninstall work both on installed systems (/opt/botpanel)
+    and in dev environments where the repo is run directly.
+    """
+
+    for base in SCRIPT_SEARCH_PATHS:
+        base_path = Path(base).expanduser().resolve()
+        candidate = base_path if base_path.is_file() else base_path / name
+        if candidate.exists():
+            if not os.access(candidate, os.X_OK):
+                # Ensure it is executable; ignore errors on platforms without chmod.
+                try:
+                    candidate.chmod(candidate.stat().st_mode | 0o111)
+                except (OSError, PermissionError):
+                    pass
+            return candidate
+
+    searched = ", ".join(str(Path(p).expanduser().resolve()) for p in SCRIPT_SEARCH_PATHS)
+    raise HTTPException(status_code=500, detail=f"{name} not found. Searched: {searched}")
 
 
 def _now_iso() -> str:
@@ -277,7 +302,12 @@ def _start_job(action: str, cmd_parts: List[str]) -> Dict:
     _write_json(_job_meta_path(job_id), meta)
     _set_active_job(job_id)
 
-    log_path.write_text(f"[{_now_iso()}] Starting {action} action\n", encoding="utf-8")
+    pretty_cmd = " ".join(shlex.quote(part) for part in cmd_parts)
+    log_path.write_text(
+        f"[{_now_iso()}] Starting {action} action\n"
+        f"[{_now_iso()}] Command: {pretty_cmd}\n",
+        encoding="utf-8",
+    )
 
     if meta["launch_mode"] == "systemd":
         _start_with_systemd(meta, cmd_parts)
@@ -289,11 +319,13 @@ def _start_job(action: str, cmd_parts: List[str]) -> Dict:
 
 
 def start_update_job() -> Dict:
-    return _start_job("update", ["bash", UPDATE_SCRIPT])
+    script = _resolve_script("update.sh")
+    return _start_job("update", ["bash", str(script)])
 
 
 def start_uninstall_job() -> Dict:
-    return _start_job("uninstall", ["bash", UNINSTALL_SCRIPT, "--yes"])
+    script = _resolve_script("uninstall.sh")
+    return _start_job("uninstall", ["bash", str(script), "--yes"])
 
 
 def get_job_status(job_id: str) -> Dict:
